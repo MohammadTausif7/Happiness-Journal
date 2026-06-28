@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { Wordmark } from "@/components/brand-mark";
 
 const navItems = [
-  { href: "#experience", label: "Experience" },
-  { href: "#features", label: "Features" },
-  { href: "#how-it-works", label: "How it works" },
+  { href: "/#experience", label: "Experience" },
+  { href: "/#features", label: "Features" },
+  { href: "/#how-it-works", label: "How it works" },
 ];
 
 export function SiteHeader() {
@@ -22,7 +22,7 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <nav aria-label="Main navigation" className="nav-shell">
-        <Link aria-label="Happiness Journal home" href="#top">
+        <Link aria-label="Happiness Journal home" href="/">
           <Wordmark />
         </Link>
 
