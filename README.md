@@ -30,6 +30,22 @@ The second increment turns those public links into a testable account flow:
 
 Increment 2 intentionally uses `localStorage` instead of a production database or email provider. This keeps the portfolio workflow reviewable now while leaving a clean seam for the real backend, account deletion, and privacy controls in later increments.
 
+## Increment 3: journal dashboard and calendar views
+
+The third increment turns the signed-in space into an interactive journal dashboard:
+
+- Browser-local journal entry storage scoped to the signed-in demo account
+- Seeded starter entries so a new account immediately shows realistic calendar activity
+- Month, week, and today calendar modes with selectable days
+- Mood-aware calendar cells with emoji markers, entry counts, and visual atmosphere classes
+- Selected-day panel that retrieves and displays entries for the active date
+- Quick capture form for saving lightweight moments directly to the calendar
+- Recent entries list that jumps the calendar to the selected moment
+- Dashboard stats for monthly entries, current streak, favorite mood, and last refresh time
+- Manual refresh action to simulate retrieving the latest journal data
+
+Increment 3 keeps persistence local while shaping the same data boundaries that will later connect to a database-backed API.
+
 ## Local development
 
 Requirements:
@@ -76,7 +92,8 @@ src/
 │   ├── sign-in/page.tsx  # Sign-in route
 │   └── sign-up/page.tsx  # Sign-up route
 ├── lib/
-│   └── demo-auth.ts      # Temporary browser-local auth helpers
+│   ├── demo-auth.ts      # Temporary browser-local auth helpers
+│   └── demo-journal.ts   # Temporary browser-local journal data helpers
 └── components/
     ├── auth/             # Sign-up, sign-in, and auth page layout
     ├── brand-mark.tsx    # Reusable brand symbol and wordmark
@@ -91,6 +108,8 @@ src/
 The landing page describes the intended privacy posture. The underlying account controls, data deletion workflow, authorization boundaries, and secure storage will be implemented and tested in later increments before the application is represented as production-ready.
 
 The Increment 2 auth flow is a local demo implementation. It is suitable for portfolio review and user-flow testing, but production deployment still needs server-side authentication, encrypted database storage, transactional email delivery, rate limiting, and account deletion controls.
+
+The Increment 3 journal data flow is also local-only. It demonstrates account-scoped retrieval, calendar updates, and mood summaries before replacing the storage layer with production APIs.
 
 ## License
 

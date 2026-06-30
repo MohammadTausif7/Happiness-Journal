@@ -1533,9 +1533,48 @@ a:focus-visible {
   margin-top: 8px;
 }
 
+.journal-topbar p {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 9px 0 0;
+}
+
 .journal-actions {
   display: flex;
   gap: 10px;
+}
+
+.journal-stat-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 20px;
+}
+
+.journal-stat-grid article {
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  border-radius: 24px;
+  box-shadow: 0 18px 46px rgba(65, 57, 42, 0.08);
+  padding: 20px;
+}
+
+.journal-stat-grid span {
+  display: block;
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 760;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.journal-stat-grid p {
+  color: #777166;
+  font-size: 12px;
+  font-weight: 680;
+  line-height: 1.45;
+  margin: 8px 0 0;
 }
 
 .dashboard-grid {
@@ -1599,6 +1638,18 @@ a:focus-visible {
   grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
+.dashboard-calendar.today {
+  grid-template-columns: 1fr;
+}
+
+.dashboard-calendar.today .dashboard-day {
+  min-height: 260px;
+}
+
+.dashboard-calendar.week .dashboard-day {
+  min-height: 132px;
+}
+
 .dashboard-calendar > b {
   color: #9d978e;
   font-size: 10px;
@@ -1609,10 +1660,29 @@ a:focus-visible {
   background: rgba(255, 255, 255, 0.66);
   border: 1px solid rgba(39, 37, 31, 0.07);
   border-radius: 17px;
+  cursor: pointer;
+  display: block;
   min-height: 86px;
   overflow: hidden;
   padding: 10px;
   position: relative;
+  text-align: left;
+  transition: box-shadow 160ms ease, transform 160ms ease, border 160ms ease;
+}
+
+.dashboard-day:hover,
+.dashboard-day.selected {
+  box-shadow: 0 14px 36px rgba(72, 62, 47, 0.13);
+  transform: translateY(-2px);
+}
+
+.dashboard-day.selected {
+  border-color: rgba(217, 88, 104, 0.5);
+  outline: 3px solid rgba(237, 111, 125, 0.16);
+}
+
+.dashboard-day.muted-month {
+  opacity: 0.42;
 }
 
 .dashboard-day span {
@@ -1630,6 +1700,22 @@ a:focus-visible {
   z-index: 2;
 }
 
+.dashboard-day small {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  bottom: 11px;
+  color: #6a6255;
+  display: flex;
+  font-size: 9px;
+  font-weight: 850;
+  height: 18px;
+  justify-content: center;
+  left: 10px;
+  position: absolute;
+  width: 18px;
+}
+
 .dashboard-day i {
   inset: auto 7px 7px auto;
   pointer-events: none;
@@ -1641,9 +1727,13 @@ a:focus-visible {
 .dashboard-day.calm { background: #ecf8f2; border-color: #d3ecde; }
 .dashboard-day.rain { background: #f0f5fa; border-color: #d8e3ee; }
 .dashboard-day.spark { background: #f4efff; border-color: #ded4ff; }
+.dashboard-day.surprise { background: #eef7ff; border-color: #cfe7fa; }
+.dashboard-day.ember { background: #fff1e9; border-color: #f3d4c2; }
 
 .dashboard-day.sunny i::before,
-.dashboard-day.spark i::before {
+.dashboard-day.spark i::before,
+.dashboard-day.surprise i::before,
+.dashboard-day.ember i::before {
   animation: sparkle-pop 1.8s ease-in-out infinite;
   color: #e5ad25;
   content: "✦";
@@ -1675,47 +1765,164 @@ a:focus-visible {
   transform: rotate(90deg);
 }
 
-.today-card {
+.selected-day-card {
   background: #28251f;
   color: white;
 }
 
-.today-card .section-kicker {
+.selected-day-card .section-kicker {
   color: #f7d87c;
 }
 
-.today-card h2 {
+.selected-day-card h2,
+.capture-card h2,
+.account-card h2 {
   font-size: 34px;
   margin: 14px 0 16px;
 }
 
-.today-card p,
-.account-card p {
+.selected-entry-list,
+.recent-entry-list {
+  display: grid;
+  gap: 12px;
+}
+
+.selected-entry-list article,
+.recent-entry-list button {
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 18px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 42px 1fr;
+  padding: 14px;
+}
+
+.entry-mood-dot {
+  align-items: center;
+  background: white;
+  border-radius: 14px;
+  display: flex;
+  font-size: 22px;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+.selected-entry-list strong,
+.recent-entry-list strong {
+  display: block;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.selected-entry-list p,
+.empty-day-message {
   color: rgba(255, 255, 255, 0.68);
   font-size: 13px;
   line-height: 1.65;
-  margin: 0 0 24px;
+  margin: 5px 0 0;
 }
 
-.account-card p {
-  color: var(--muted);
+.capture-card {
+  background: #fff9ea;
 }
 
-.account-card ul {
-  color: #625c52;
+.capture-form {
+  display: grid;
+  gap: 13px;
+}
+
+.capture-form label {
+  color: #5c584f;
   display: grid;
   font-size: 12px;
-  gap: 10px;
-  list-style: none;
-  margin: 22px 0 0;
-  padding: 0;
+  font-weight: 720;
+  gap: 8px;
 }
 
-.account-card li::before {
-  color: #4f9d80;
-  content: "✓";
-  font-weight: 900;
-  margin-right: 9px;
+.capture-form input,
+.capture-form textarea {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(39, 37, 31, 0.1);
+  border-radius: 15px;
+  color: var(--ink);
+  outline: 0;
+  padding: 14px 15px;
+  resize: vertical;
+}
+
+.capture-form input {
+  min-height: 50px;
+}
+
+.capture-mood-row {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.capture-mood-row button {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(39, 37, 31, 0.08);
+  border-radius: 16px;
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  min-height: 68px;
+  padding: 8px 5px;
+}
+
+.capture-mood-row button.active {
+  background: white;
+  border-color: rgba(217, 88, 104, 0.38);
+  box-shadow: 0 10px 24px rgba(88, 70, 45, 0.1);
+}
+
+.capture-mood-row span {
+  font-size: 22px;
+}
+
+.capture-mood-row small {
+  color: #756f64;
+  font-size: 8px;
+  font-weight: 760;
+}
+
+.recent-entry-list button {
+  background: #fbfaf7;
+  border-color: rgba(39, 37, 31, 0.07);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.recent-entry-list button:hover {
+  background: white;
+  transform: translateY(-1px);
+}
+
+.recent-entry-list > button > span {
+  align-items: center;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(71, 62, 48, 0.08);
+  display: flex;
+  font-size: 22px;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+.recent-entry-list small {
+  color: #8b857b;
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 4px;
 }
 
 .loading-page,
@@ -1825,6 +2032,7 @@ a:focus-visible {
   .dashboard-grid { grid-template-columns: 1fr; }
   .calendar-card { grid-row: auto; }
   .journal-topbar { align-items: flex-start; flex-direction: column; }
+  .journal-stat-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 640px) {
@@ -1901,6 +2109,8 @@ a:focus-visible {
   .journal-workspace { padding: 20px; }
   .journal-actions { flex-direction: column; width: 100%; }
   .journal-actions .button { width: 100%; }
+  .journal-stat-grid { grid-template-columns: 1fr; }
+  .journal-stat-grid article { padding: 17px; }
   .dashboard-card { border-radius: 24px; padding: 20px; }
   .dashboard-card-header { align-items: flex-start; flex-direction: column; }
   .view-switcher { width: 100%; }
@@ -1908,6 +2118,11 @@ a:focus-visible {
   .dashboard-calendar { gap: 5px; }
   .dashboard-day { border-radius: 11px; min-height: 58px; padding: 7px; }
   .dashboard-day strong { bottom: 6px; font-size: 21px; right: 7px; }
+  .dashboard-day small { bottom: 6px; left: 7px; }
+  .dashboard-calendar.week .dashboard-day,
+  .dashboard-calendar.today .dashboard-day { min-height: 92px; }
+  .selected-day-card h2, .capture-card h2, .account-card h2 { font-size: 29px; }
+  .capture-mood-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
