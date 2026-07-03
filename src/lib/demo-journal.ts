@@ -179,6 +179,38 @@ export function saveJournalEntry(input: {
   return entry;
 }
 
+export function updateJournalEntry(input: {
+  id: string;
+  accountId: string;
+  date: string;
+  title: string;
+  mood: JournalMood;
+  notes: string;
+}) {
+  const now = new Date().toISOString();
+  let updatedEntry: JournalEntry | null = null;
+  const entries = getAllJournalEntries().map((entry) => {
+    if (entry.id !== input.id || entry.accountId !== input.accountId) {
+      return entry;
+    }
+
+    updatedEntry = {
+      ...entry,
+      date: input.date,
+      title: input.title.trim(),
+      mood: input.mood,
+      notes: input.notes.trim(),
+      updatedAt: now,
+    };
+
+    return updatedEntry;
+  });
+
+  writeJson(ENTRIES_KEY, entries);
+  setLastSyncAt(now, input.accountId);
+  return updatedEntry;
+}
+
 export function getLastSyncAt(accountId: string) {
   const syncMap = readJson<Record<string, string>>(LAST_SYNC_KEY, {});
   return syncMap[accountId] ?? null;

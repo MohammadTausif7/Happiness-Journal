@@ -46,6 +46,21 @@ The third increment turns the signed-in space into an interactive journal dashbo
 
 Increment 3 keeps persistence local while shaping the same data boundaries that will later connect to a database-backed API.
 
+## Increment 4: journal editor and mood experiences
+
+The fourth increment makes writing feel like the core product experience:
+
+- Focused journal editor modal for creating new entries and editing existing moments
+- Date, title, animated mood palette, long-form notes, and writing prompt helpers
+- Mood-specific editor atmospheres including sunshine, hearts, rain, calm gradients, sparks, and ember effects
+- Selected-day mood atmosphere so the dashboard reflects the emotional tone of saved entries
+- “+ New” dashboard action that opens the editor for the active day
+- Edit controls on saved entries that reopen the editor with existing content
+- Journal update helper for modifying local entries while preserving account scoping and sync metadata
+- Writing studio card that replaces the earlier quick-capture form with a fuller journaling workflow
+
+Increment 4 still uses local browser persistence, but the editor flow now mirrors the end-state product interaction more closely.
+
 ## Local development
 
 Requirements:
@@ -97,7 +112,7 @@ src/
 └── components/
     ├── auth/             # Sign-up, sign-in, and auth page layout
     ├── brand-mark.tsx    # Reusable brand symbol and wordmark
-    ├── journal/          # Dashboard shell components
+    ├── journal/          # Dashboard and journal editor components
     ├── product-preview.tsx
     ├── site-header.tsx
     └── typewriter-text.tsx
@@ -110,6 +125,8 @@ The landing page describes the intended privacy posture. The underlying account 
 The Increment 2 auth flow is a local demo implementation. It is suitable for portfolio review and user-flow testing, but production deployment still needs server-side authentication, encrypted database storage, transactional email delivery, rate limiting, and account deletion controls.
 
 The Increment 3 journal data flow is also local-only. It demonstrates account-scoped retrieval, calendar updates, and mood summaries before replacing the storage layer with production APIs.
+
+The Increment 4 editor saves and updates local entries only. Production work will still need server-side validation, authorization checks, encrypted storage, and audit-safe deletion paths.
 
 ## License
 

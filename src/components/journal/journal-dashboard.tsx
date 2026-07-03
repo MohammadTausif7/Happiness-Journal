@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BrandMark } from "@/components/brand-mark";
+import { JournalEntryEditor } from "@/components/journal/journal-entry-editor";
 import { clearSession, getSession } from "@/lib/demo-auth";
 import {
   ensureJournalSeed,
@@ -11,10 +12,8 @@ import {
   getJournalEntries,
   getLastSyncAt,
   getMoodMeta,
-  moodOptions,
   parseDateKey,
   refreshJournalData,
-  saveJournalEntry,
 } from "@/lib/demo-journal";
 import type { DemoSession } from "@/lib/demo-auth";
 import type { JournalEntry, JournalMood } from "@/lib/demo-journal";
@@ -105,10 +104,9 @@ export function JournalDashboard() {
   const [calendarView, setCalendarView] = useState<CalendarView>("month");
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [draftTitle, setDraftTitle] = useState("");
-  const [draftMood, setDraftMood] = useState<JournalMood>("happy");
-  const [draftNotes, setDraftNotes] = useState("");
   const [formMessage, setFormMessage] = useState("");
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -135,6 +133,7 @@ export function JournalDashboard() {
   const currentStreak = getCurrentStreak(entries);
   const favoriteMood = getFavoriteMood(entries);
   const recentEntries = entries.slice(0, 4);
+  const selectedMoodMeta = selectedEntries[0] ? getMoodMeta(selectedEntries[0].mood) : null;
 
   function handleSignOut() {
     clearSession();
@@ -152,32 +151,32 @@ export function JournalDashboard() {
     setFormMessage("Calendar refreshed with your latest local journal data.");
   }
 
-  function handleSaveEntry(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function openNewEntryEditor(date = selectedDate) {
+    setSelectedDate(date);
+    setEditingEntry(null);
+    setIsEditorOpen(true);
+    setFormMessage("");
+  }
 
+  function openEditEntryEditor(entry: JournalEntry) {
+    setSelectedDate(entry.date);
+    setEditingEntry(entry);
+    setIsEditorOpen(true);
+    setFormMessage("");
+  }
+
+  function handleEditorSaved(entry: JournalEntry) {
     if (!session) {
       return;
     }
 
-    if (draftTitle.trim().length < 3) {
-      setFormMessage("Give this moment a short title before saving.");
-      return;
-    }
-
-    saveJournalEntry({
-      accountId: session.accountId,
-      date: selectedDate,
-      title: draftTitle,
-      mood: draftMood,
-      notes: draftNotes || "Saved from the Increment 3 quick capture panel.",
-    });
-
     setEntries(getJournalEntries(session.accountId));
+    setSelectedDate(entry.date);
+    setCalendarView("week");
     setLastSyncedAt(new Date().toISOString());
-    setDraftTitle("");
-    setDraftNotes("");
-    setDraftMood("happy");
-    setFormMessage("Moment saved. Your calendar updated right away.");
+    setIsEditorOpen(false);
+    setEditingEntry(null);
+    setFormMessage("Journal entry saved. Your calendar and mood atmosphere updated.");
   }
 
   if (!isReady) {
@@ -194,7 +193,7 @@ export function JournalDashboard() {
         <section className="empty-session-card">
           <BrandMark size={46} />
           <h1>Please sign in first.</h1>
-          <p>Your journal dashboard is connected to your local demo session for Increment 3.</p>
+          <p>Your journal dashboard is connected to your local demo session for Increment 4.</p>
           <Link className="button button-primary" href="/sign-in">
             Go to sign in
           </Link>
@@ -214,13 +213,13 @@ export function JournalDashboard() {
         <nav aria-label="Journal navigation" className="journal-nav">
           <a className="active" href="#calendar">Calendar</a>
           <a href="#selected-day">Selected day</a>
-          <a href="#quick-capture">Quick capture</a>
+          <a href="#writing-studio">Writing studio</a>
           <a href="#insights">Insights</a>
         </nav>
 
         <div className="sidebar-note">
-          <span>Increment 3</span>
-          <p>Calendar views, local journal retrieval, daily details, and dashboard stats are now live.</p>
+          <span>Increment 4</span>
+          <p>Full journal editing and animated mood experiences are now part of the dashboard.</p>
         </div>
       </aside>
 
@@ -241,6 +240,9 @@ export function JournalDashboard() {
             </p>
           </div>
           <div className="journal-actions">
+            <button className="button button-primary" onClick={() => openNewEntryEditor()} type="button">
+              + New
+            </button>
             <button className="button button-secondary" onClick={handleRefresh} type="button">
               Refresh data
             </button>
@@ -328,7 +330,12 @@ export function JournalDashboard() {
             </div>
           </section>
 
-          <section className="dashboard-card selected-day-card" id="selected-day">
+          <section className={`dashboard-card selected-day-card ${selectedMoodMeta?.className ?? ""}`} id="selected-day">
+            <div aria-hidden="true" className="selected-day-atmosphere">
+              <span />
+              <span />
+              <span />
+            </div>
             <span className="section-kicker">SELECTED DAY</span>
             <h2>{selectedDateFormatter.format(anchorDate)}</h2>
             <div className="selected-entry-list">
@@ -341,63 +348,42 @@ export function JournalDashboard() {
                       <div>
                         <strong>{entry.title}</strong>
                         <p>{entry.notes}</p>
+                        <button onClick={() => openEditEntryEditor(entry)} type="button">
+                          Edit entry
+                        </button>
                       </div>
                     </article>
                   );
                 })
               ) : (
-                <p className="empty-day-message">No moment saved for this day yet. Add one with quick capture.</p>
+                <div className="empty-day-message">
+                  <p>No moment saved for this day yet.</p>
+                  <button className="button button-primary" onClick={() => openNewEntryEditor(selectedDate)} type="button">
+                    Write for this day
+                  </button>
+                </div>
               )}
             </div>
           </section>
 
-          <section className="dashboard-card capture-card" id="quick-capture">
-            <span className="section-kicker">QUICK CAPTURE</span>
-            <h2>Log a small moment.</h2>
-            <form className="capture-form" onSubmit={handleSaveEntry}>
-              <label>
-                Date
-                <input onChange={(event) => setSelectedDate(event.target.value)} type="date" value={selectedDate} />
-              </label>
-              <label>
-                Title
-                <input
-                  onChange={(event) => setDraftTitle(event.target.value)}
-                  placeholder="What happened?"
-                  type="text"
-                  value={draftTitle}
-                />
-              </label>
-              <div className="capture-mood-row" role="radiogroup" aria-label="Mood">
-                {moodOptions.map((mood) => (
-                  <button
-                    aria-checked={draftMood === mood.id}
-                    className={draftMood === mood.id ? "active" : ""}
-                    key={mood.id}
-                    onClick={() => setDraftMood(mood.id)}
-                    role="radio"
-                    type="button"
-                  >
-                    <span>{mood.emoji}</span>
-                    <small>{mood.label}</small>
-                  </button>
-                ))}
-              </div>
-              <label>
-                Notes
-                <textarea
-                  onChange={(event) => setDraftNotes(event.target.value)}
-                  placeholder="A sentence is enough."
-                  rows={3}
-                  value={draftNotes}
-                />
-              </label>
-              {formMessage && <p className="form-message success">{formMessage}</p>}
-              <button className="button button-primary full-button" type="submit">
-                Save to calendar
-                <span aria-hidden="true">✎</span>
-              </button>
-            </form>
+          <section className="dashboard-card editor-card" id="writing-studio">
+            <span className="section-kicker">WRITING STUDIO</span>
+            <h2>Open a focused editor.</h2>
+            <p>
+              Pick a date, choose an animated mood, and write a fuller memory with prompts that help you begin.
+            </p>
+            <div className="editor-card-preview" aria-hidden="true">
+              <span>😊</span>
+              <span>🥰</span>
+              <span>😌</span>
+              <span>🤩</span>
+              <span>😔</span>
+            </div>
+            {formMessage && <p className="form-message success">{formMessage}</p>}
+            <button className="button button-primary full-button" onClick={() => openNewEntryEditor()} type="button">
+              Write a journal entry
+              <span aria-hidden="true">✎</span>
+            </button>
           </section>
 
           <section className="dashboard-card account-card" id="insights">
@@ -427,6 +413,20 @@ export function JournalDashboard() {
           </section>
         </div>
       </section>
+
+      {isEditorOpen && (
+        <JournalEntryEditor
+          accountId={session.accountId}
+          entry={editingEntry}
+          key={editingEntry?.id ?? `new-${selectedDate}`}
+          onClose={() => {
+            setIsEditorOpen(false);
+            setEditingEntry(null);
+          }}
+          onSaved={handleEditorSaved}
+          selectedDate={selectedDate}
+        />
+      )}
     </main>
   );
 }

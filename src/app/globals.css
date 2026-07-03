@@ -1768,14 +1768,80 @@ a:focus-visible {
 .selected-day-card {
   background: #28251f;
   color: white;
+  overflow: hidden;
+  position: relative;
 }
+
+.selected-day-card > *:not(.selected-day-atmosphere) {
+  position: relative;
+  z-index: 2;
+}
+
+.selected-day-atmosphere {
+  inset: 0;
+  opacity: 0.55;
+  pointer-events: none;
+  position: absolute;
+}
+
+.selected-day-atmosphere span {
+  position: absolute;
+}
+
+.selected-day-card.sunny .selected-day-atmosphere span:first-child {
+  animation: editor-sun-pulse 3s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(247, 216, 124, 0.9), rgba(247, 216, 124, 0));
+  border-radius: 999px;
+  height: 190px;
+  right: -70px;
+  top: -80px;
+  width: 190px;
+}
+
+.selected-day-card.love .selected-day-atmosphere span {
+  animation: editor-float 3.2s ease-in-out infinite;
+  color: rgba(255, 176, 197, 0.65);
+  font-size: 34px;
+}
+
+.selected-day-card.love .selected-day-atmosphere span::before { content: "♡"; }
+.selected-day-card.love .selected-day-atmosphere span:first-child { right: 24px; top: 26px; }
+.selected-day-card.love .selected-day-atmosphere span:nth-child(2) { animation-delay: 0.7s; right: 70px; top: 110px; }
+.selected-day-card.love .selected-day-atmosphere span:nth-child(3) { animation-delay: 1.2s; right: 16px; top: 175px; }
+
+.selected-day-card.rain .selected-day-atmosphere {
+  background-image: linear-gradient(120deg, rgba(174, 204, 231, 0.35) 1px, transparent 1px);
+  background-size: 18px 18px;
+  animation: editor-rain-sheet 850ms linear infinite;
+}
+
+.selected-day-card.spark .selected-day-atmosphere span,
+.selected-day-card.surprise .selected-day-atmosphere span,
+.selected-day-card.ember .selected-day-atmosphere span {
+  animation: sparkle-pop 2s ease-in-out infinite;
+  color: rgba(255, 225, 142, 0.7);
+  font-size: 24px;
+}
+
+.selected-day-card.spark .selected-day-atmosphere span::before,
+.selected-day-card.surprise .selected-day-atmosphere span::before,
+.selected-day-card.ember .selected-day-atmosphere span::before { content: "✦"; }
+.selected-day-card.spark .selected-day-atmosphere span:first-child,
+.selected-day-card.surprise .selected-day-atmosphere span:first-child,
+.selected-day-card.ember .selected-day-atmosphere span:first-child { right: 35px; top: 30px; }
+.selected-day-card.spark .selected-day-atmosphere span:nth-child(2),
+.selected-day-card.surprise .selected-day-atmosphere span:nth-child(2),
+.selected-day-card.ember .selected-day-atmosphere span:nth-child(2) { animation-delay: 0.5s; right: 95px; top: 120px; }
+.selected-day-card.spark .selected-day-atmosphere span:nth-child(3),
+.selected-day-card.surprise .selected-day-atmosphere span:nth-child(3),
+.selected-day-card.ember .selected-day-atmosphere span:nth-child(3) { animation-delay: 1s; right: 22px; top: 190px; }
 
 .selected-day-card .section-kicker {
   color: #f7d87c;
 }
 
 .selected-day-card h2,
-.capture-card h2,
+.editor-card h2,
 .account-card h2 {
   font-size: 34px;
   margin: 14px 0 16px;
@@ -1825,9 +1891,60 @@ a:focus-visible {
   margin: 5px 0 0;
 }
 
-.capture-card {
+.selected-entry-list article button {
+  background: transparent;
+  border: 0;
+  color: #f7d87c;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  margin-top: 10px;
+  padding: 0;
+}
+
+.empty-day-message {
+  display: grid;
+  gap: 16px;
+}
+
+.empty-day-message .button {
+  width: fit-content;
+}
+
+.editor-card {
   background: #fff9ea;
 }
+
+.editor-card p {
+  color: #756f64;
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 0 0 20px;
+}
+
+.editor-card-preview {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.editor-card-preview span {
+  align-items: center;
+  animation: mood-bob 2.8s ease-in-out infinite;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 24px rgba(84, 68, 42, 0.08);
+  display: flex;
+  font-size: 24px;
+  height: 48px;
+  justify-content: center;
+  width: 48px;
+}
+
+.editor-card-preview span:nth-child(2) { animation-delay: 0.15s; }
+.editor-card-preview span:nth-child(3) { animation-delay: 0.3s; }
+.editor-card-preview span:nth-child(4) { animation-delay: 0.45s; }
+.editor-card-preview span:nth-child(5) { animation-delay: 0.6s; }
 
 .capture-form {
   display: grid;
@@ -1923,6 +2040,255 @@ a:focus-visible {
   font-size: 11px;
   font-weight: 700;
   margin-top: 4px;
+}
+
+.journal-editor-overlay {
+  align-items: center;
+  display: grid;
+  inset: 0;
+  justify-items: center;
+  padding: 30px;
+  position: fixed;
+  z-index: 100;
+}
+
+.editor-scrim {
+  backdrop-filter: blur(16px);
+  background: rgba(28, 26, 22, 0.45);
+  border: 0;
+  cursor: pointer;
+  inset: 0;
+  position: absolute;
+}
+
+.journal-editor-panel {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 34px;
+  box-shadow: 0 40px 110px rgba(23, 20, 16, 0.3);
+  max-height: min(860px, calc(100vh - 42px));
+  max-width: 920px;
+  overflow: auto;
+  padding: 30px;
+  position: relative;
+  width: min(920px, 100%);
+}
+
+.journal-editor-panel > *:not(.editor-atmosphere) {
+  position: relative;
+  z-index: 2;
+}
+
+.editor-atmosphere {
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+}
+
+.editor-atmosphere span {
+  position: absolute;
+}
+
+.journal-editor-panel.sunny .editor-atmosphere span:first-child {
+  animation: editor-sun-pulse 3.2s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(255, 219, 118, 0.78), rgba(255, 219, 118, 0));
+  border-radius: 999px;
+  height: 300px;
+  right: -110px;
+  top: -130px;
+  width: 300px;
+}
+
+.journal-editor-panel.love .editor-atmosphere span {
+  animation: editor-float 3.2s ease-in-out infinite;
+  color: rgba(230, 88, 118, 0.28);
+  font-size: 58px;
+}
+
+.journal-editor-panel.love .editor-atmosphere span::before { content: "♡"; }
+.journal-editor-panel.love .editor-atmosphere span:first-child { right: 12%; top: 10%; }
+.journal-editor-panel.love .editor-atmosphere span:nth-child(2) { animation-delay: 0.7s; left: 9%; top: 34%; }
+.journal-editor-panel.love .editor-atmosphere span:nth-child(3) { animation-delay: 1.2s; bottom: 12%; right: 18%; }
+
+.journal-editor-panel.calm .editor-atmosphere {
+  background:
+    radial-gradient(circle at 12% 22%, rgba(185, 221, 207, 0.42), transparent 24%),
+    radial-gradient(circle at 88% 78%, rgba(185, 221, 207, 0.36), transparent 28%);
+}
+
+.journal-editor-panel.spark .editor-atmosphere span,
+.journal-editor-panel.surprise .editor-atmosphere span,
+.journal-editor-panel.ember .editor-atmosphere span {
+  animation: sparkle-pop 2s ease-in-out infinite;
+  color: rgba(145, 114, 222, 0.3);
+  font-size: 42px;
+}
+
+.journal-editor-panel.spark .editor-atmosphere span::before,
+.journal-editor-panel.surprise .editor-atmosphere span::before,
+.journal-editor-panel.ember .editor-atmosphere span::before { content: "✦"; }
+.journal-editor-panel.spark .editor-atmosphere span:first-child,
+.journal-editor-panel.surprise .editor-atmosphere span:first-child,
+.journal-editor-panel.ember .editor-atmosphere span:first-child { right: 12%; top: 13%; }
+.journal-editor-panel.spark .editor-atmosphere span:nth-child(2),
+.journal-editor-panel.surprise .editor-atmosphere span:nth-child(2),
+.journal-editor-panel.ember .editor-atmosphere span:nth-child(2) { animation-delay: 0.45s; left: 8%; top: 32%; }
+.journal-editor-panel.spark .editor-atmosphere span:nth-child(3),
+.journal-editor-panel.surprise .editor-atmosphere span:nth-child(3),
+.journal-editor-panel.ember .editor-atmosphere span:nth-child(3) { animation-delay: 0.9s; bottom: 12%; right: 22%; }
+
+.journal-editor-panel.rain .editor-atmosphere {
+  animation: editor-rain-sheet 850ms linear infinite;
+  background-image: linear-gradient(120deg, rgba(113, 151, 187, 0.24) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+@keyframes editor-sun-pulse {
+  50% { opacity: 0.55; transform: scale(1.08); }
+}
+
+@keyframes editor-float {
+  50% { transform: translateY(-12px) rotate(8deg); }
+}
+
+@keyframes editor-rain-sheet {
+  to { background-position: 0 20px; }
+}
+
+.editor-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.editor-header h2 {
+  font-family: var(--display);
+  font-size: clamp(34px, 5vw, 54px);
+  letter-spacing: -0.055em;
+  line-height: 1;
+  margin: 10px 0 0;
+  max-width: 650px;
+}
+
+.editor-close-button {
+  align-items: center;
+  background: rgba(39, 37, 31, 0.08);
+  border: 0;
+  border-radius: 999px;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  flex: 0 0 auto;
+  font-size: 28px;
+  height: 42px;
+  justify-content: center;
+  line-height: 1;
+  width: 42px;
+}
+
+.journal-editor-form {
+  display: grid;
+  gap: 18px;
+}
+
+.editor-field-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 0.65fr 1.35fr;
+}
+
+.journal-editor-form label {
+  color: #5c584f;
+  display: grid;
+  font-size: 12px;
+  font-weight: 760;
+  gap: 8px;
+}
+
+.journal-editor-form input,
+.journal-editor-form textarea {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(39, 37, 31, 0.1);
+  border-radius: 17px;
+  color: var(--ink);
+  outline: 0;
+  padding: 15px 16px;
+  resize: vertical;
+}
+
+.journal-editor-form input {
+  min-height: 54px;
+}
+
+.editor-mood-palette {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.editor-mood-palette button {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(39, 37, 31, 0.08);
+  border-radius: 20px;
+  cursor: pointer;
+  display: grid;
+  gap: 7px;
+  justify-items: center;
+  min-height: 92px;
+  padding: 13px 6px;
+  transition: box-shadow 160ms ease, transform 160ms ease, border 160ms ease;
+}
+
+.editor-mood-palette button:hover,
+.editor-mood-palette button.active {
+  background: white;
+  border-color: rgba(217, 88, 104, 0.38);
+  box-shadow: 0 16px 34px rgba(88, 70, 45, 0.13);
+  transform: translateY(-3px);
+}
+
+.editor-mood-palette span {
+  animation: mood-bob 2.8s ease-in-out infinite;
+  font-size: 34px;
+}
+
+.editor-mood-palette button:nth-child(2) span { animation-delay: 0.1s; }
+.editor-mood-palette button:nth-child(3) span { animation-delay: 0.2s; }
+.editor-mood-palette button:nth-child(4) span { animation-delay: 0.3s; }
+.editor-mood-palette button:nth-child(5) span { animation-delay: 0.4s; }
+.editor-mood-palette button:nth-child(6) span { animation-delay: 0.5s; }
+.editor-mood-palette button:nth-child(7) span { animation-delay: 0.6s; }
+
+.editor-mood-palette small {
+  color: #756f64;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.editor-prompt-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.editor-prompt-row button {
+  background: rgba(39, 37, 31, 0.06);
+  border: 1px solid rgba(39, 37, 31, 0.06);
+  border-radius: 999px;
+  color: #605a51;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 720;
+  padding: 9px 12px;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
 }
 
 .loading-page,
@@ -2033,6 +2399,8 @@ a:focus-visible {
   .calendar-card { grid-row: auto; }
   .journal-topbar { align-items: flex-start; flex-direction: column; }
   .journal-stat-grid { grid-template-columns: repeat(3, 1fr); }
+  .editor-field-grid { grid-template-columns: 1fr; }
+  .editor-mood-palette { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
@@ -2121,8 +2489,16 @@ a:focus-visible {
   .dashboard-day small { bottom: 6px; left: 7px; }
   .dashboard-calendar.week .dashboard-day,
   .dashboard-calendar.today .dashboard-day { min-height: 92px; }
-  .selected-day-card h2, .capture-card h2, .account-card h2 { font-size: 29px; }
+  .selected-day-card h2, .editor-card h2, .account-card h2 { font-size: 29px; }
   .capture-mood-row { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .journal-editor-overlay { padding: 12px; }
+  .journal-editor-panel { border-radius: 24px; max-height: calc(100vh - 24px); padding: 20px; }
+  .editor-header { gap: 16px; }
+  .editor-close-button { height: 38px; width: 38px; }
+  .editor-mood-palette { gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .editor-mood-palette button { min-height: 82px; }
+  .editor-actions { flex-direction: column-reverse; }
+  .editor-actions .button { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

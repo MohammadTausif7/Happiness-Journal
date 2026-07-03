@@ -50,8 +50,8 @@ export function AuthPageShell({
               </div>
             </div>
             <div className="auth-preview-calendar" aria-hidden="true">
-              {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
-                <b key={day}>{day}</b>
+              {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => (
+                <b key={`${day}-${index}`}>{day}</b>
               ))}
               {["", "😊", "", "🥰", "", "😌", "✨"].map((mood, index) => (
                 <span className={mood ? "filled" : ""} key={`${mood}-${index}`}>
