@@ -80,10 +80,25 @@ export function JournalEntryEditor({
 
       <section className={`journal-editor-panel ${moodMeta.className}`}>
         <div aria-hidden="true" className="editor-atmosphere">
-          <span />
-          <span />
-          <span />
-          <span />
+          <span className="scene-sun" />
+          <span className="scene-emoji">{moodMeta.emoji}</span>
+          <span className="scene-heart" />
+          <span className="scene-heart two" />
+          <span className="scene-heart three" />
+          <span className="scene-star" />
+          <span className="scene-star two" />
+          <span className="scene-star three" />
+          <span className="scene-surprise" />
+          <span className="scene-surprise two" />
+          <span className="scene-rain" />
+          <span className="scene-rain deep" />
+          <span className="scene-thunder">⚡</span>
+          <span className="scene-thunder two">⚡</span>
+          <span className="scene-cloud" />
+          <span className="scene-cloud two" />
+          <span className="scene-burst" />
+          <span className="scene-burst two" />
+          <span className="scene-ember" />
         </div>
 
         <header className="editor-header">

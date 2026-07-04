@@ -51,10 +51,6 @@ function getWeekGrid(anchorDate: Date) {
   return Array.from({ length: 7 }, (_, index) => addDays(startDate, index));
 }
 
-function formatShortDate(dateKey: string) {
-  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(parseDateKey(dateKey));
-}
-
 function getEntriesByDate(entries: JournalEntry[]) {
   return entries.reduce<Record<string, JournalEntry[]>>((groupedEntries, entry) => {
     groupedEntries[entry.date] = [...(groupedEntries[entry.date] ?? []), entry];
@@ -132,7 +128,6 @@ export function JournalDashboard() {
   const monthEntryCount = getMonthEntryCount(entries, anchorDate);
   const currentStreak = getCurrentStreak(entries);
   const favoriteMood = getFavoriteMood(entries);
-  const recentEntries = entries.slice(0, 4);
   const selectedMoodMeta = selectedEntries[0] ? getMoodMeta(selectedEntries[0].mood) : null;
 
   function handleSignOut() {
@@ -149,6 +144,20 @@ export function JournalDashboard() {
     setEntries(result.entries);
     setLastSyncedAt(result.refreshedAt);
     setFormMessage("Calendar refreshed with your latest local journal data.");
+  }
+
+  function shiftCalendar(amount: number) {
+    const nextDate = new Date(anchorDate);
+
+    if (calendarView === "month") {
+      nextDate.setMonth(nextDate.getMonth() + amount);
+    } else if (calendarView === "week") {
+      nextDate.setDate(nextDate.getDate() + amount * 7);
+    } else {
+      nextDate.setDate(nextDate.getDate() + amount);
+    }
+
+    setSelectedDate(formatDateKey(nextDate));
   }
 
   function openNewEntryEditor(date = selectedDate) {
@@ -214,12 +223,13 @@ export function JournalDashboard() {
           <a className="active" href="#calendar">Calendar</a>
           <a href="#selected-day">Selected day</a>
           <a href="#writing-studio">Writing studio</a>
+          <Link href="/relive">Relive moments</Link>
           <a href="#insights">Insights</a>
         </nav>
 
         <div className="sidebar-note">
           <span>Increment 4</span>
-          <p>Full journal editing and animated mood experiences are now part of the dashboard.</p>
+          <p>Deeper mood scenes, calendar travel, and memory reliving are now part of the dashboard.</p>
         </div>
       </aside>
 
@@ -273,6 +283,17 @@ export function JournalDashboard() {
               <div>
                 <span className="section-kicker">MOOD CALENDAR</span>
                 <h2>{dateFormatter.format(anchorDate)}</h2>
+                <div className="calendar-time-controls" aria-label="Calendar time navigation">
+                  <button onClick={() => shiftCalendar(-1)} type="button">
+                    ← Previous
+                  </button>
+                  <button onClick={() => setSelectedDate(todayKey)} type="button">
+                    Today
+                  </button>
+                  <button onClick={() => shiftCalendar(1)} type="button">
+                    Next →
+                  </button>
+                </div>
               </div>
               <div className="view-switcher" aria-label="Calendar view options">
                 {(["month", "week", "today"] as CalendarView[]).map((view) => (
@@ -332,9 +353,25 @@ export function JournalDashboard() {
 
           <section className={`dashboard-card selected-day-card ${selectedMoodMeta?.className ?? ""}`} id="selected-day">
             <div aria-hidden="true" className="selected-day-atmosphere">
-              <span />
-              <span />
-              <span />
+              <span className="scene-sun" />
+              <span className="scene-emoji">{selectedMoodMeta?.emoji}</span>
+              <span className="scene-heart" />
+              <span className="scene-heart two" />
+              <span className="scene-heart three" />
+              <span className="scene-star" />
+              <span className="scene-star two" />
+              <span className="scene-star three" />
+              <span className="scene-surprise" />
+              <span className="scene-surprise two" />
+              <span className="scene-rain" />
+              <span className="scene-rain deep" />
+              <span className="scene-thunder">⚡</span>
+              <span className="scene-thunder two">⚡</span>
+              <span className="scene-cloud" />
+              <span className="scene-cloud two" />
+              <span className="scene-burst" />
+              <span className="scene-burst two" />
+              <span className="scene-ember" />
             </div>
             <span className="section-kicker">SELECTED DAY</span>
             <h2>{selectedDateFormatter.format(anchorDate)}</h2>
@@ -386,30 +423,27 @@ export function JournalDashboard() {
             </button>
           </section>
 
-          <section className="dashboard-card account-card" id="insights">
-            <span className="section-kicker">RECENT MOMENTS</span>
-            <h2>Latest entries</h2>
-            <div className="recent-entry-list">
-              {recentEntries.map((entry) => {
-                const mood = getMoodMeta(entry.mood);
-                return (
-                  <button
-                    key={entry.id}
-                    onClick={() => {
-                      setSelectedDate(entry.date);
-                      setCalendarView("week");
-                    }}
-                    type="button"
-                  >
-                    <span>{mood.emoji}</span>
-                    <div>
-                      <strong>{entry.title}</strong>
-                      <small>{formatShortDate(entry.date)}</small>
-                    </div>
-                  </button>
-                );
-              })}
+          <section className="dashboard-card relive-card" id="relive-moments">
+            <span className="section-kicker">RELIVE MOMENTS</span>
+            <h2>Open the full timeline.</h2>
+            <p>
+              Relive moments now lives on its own page with a dated timeline and immersive floating journal reader.
+            </p>
+            <div className="relive-card-actions">
+              <Link className="button button-primary" href="/relive">
+                Go to Relive moments
+                <span aria-hidden="true">→</span>
+              </Link>
             </div>
+          </section>
+
+          <section className="dashboard-card account-card" id="insights">
+            <span className="section-kicker">MEMORY DETAILS</span>
+            <h2>{session.email}</h2>
+            <p>
+              Your demo journal now supports animated mood writing, account-scoped entries, local updates, and calendar
+              travel.
+            </p>
           </section>
         </div>
       </section>

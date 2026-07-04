@@ -58,6 +58,9 @@ The fourth increment makes writing feel like the core product experience:
 - Edit controls on saved entries that reopen the editor with existing content
 - Journal update helper for modifying local entries while preserving account scoping and sync metadata
 - Writing studio card that replaces the earlier quick-capture form with a fuller journaling workflow
+- Enhanced mood scenes with sun bloom, flying hearts, calm sky, star/cracker pops, surprised emojis, realistic layered rain, timed thunder/lightning, and frustrated ember motion
+- Previous, today, and next calendar controls for browsing earlier or future journal dates
+- Dedicated Relive Moments page with timeline-arranged journal events and floating mood readers for full journal notes
 
 Increment 4 still uses local browser persistence, but the editor flow now mirrors the end-state product interaction more closely.
 
@@ -104,6 +107,7 @@ src/
 │   ├── layout.tsx        # Root metadata and document structure
 │   ├── journal/page.tsx  # Signed-in dashboard shell
 │   ├── page.tsx          # Public landing page
+│   ├── relive/page.tsx   # Timeline page for reading past moments
 │   ├── sign-in/page.tsx  # Sign-in route
 │   └── sign-up/page.tsx  # Sign-up route
 ├── lib/
