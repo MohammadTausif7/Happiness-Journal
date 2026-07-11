@@ -41,7 +41,7 @@ export function SignInForm() {
       setPendingAccount(account);
       setVerificationCode(createVerificationCode());
       setStep("verify");
-      setStatus("Two-factor code generated. In production, this will be delivered by email.");
+      setStatus("Two-factor code ready. Enter it below to continue.");
     } finally {
       setIsSubmitting(false);
     }
@@ -111,10 +111,10 @@ export function SignInForm() {
       ) : (
         <form className="auth-form" onSubmit={handleVerifySubmit}>
           <div className="demo-email-card purple">
-            <span>Demo two-factor email</span>
+            <span>Two-factor code</span>
             <strong>{verificationCode}</strong>
             <p>
-              Use this temporary code to finish signing in as <b>{pendingAccount?.email}</b>.
+              Use this code to finish signing in as <b>{pendingAccount?.email}</b>.
             </p>
           </div>
 

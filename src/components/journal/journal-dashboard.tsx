@@ -214,7 +214,7 @@ export function JournalDashboard() {
         <section className="empty-session-card">
           <BrandMark size={46} />
           <h1>Please sign in first.</h1>
-          <p>Your journal dashboard is connected to your local demo session for Increment 4.</p>
+          <p>Sign in to open your private mood calendar and saved journal moments.</p>
           <Link className="button button-primary" href="/sign-in">
             Go to sign in
           </Link>
@@ -233,16 +233,16 @@ export function JournalDashboard() {
 
         <nav aria-label="Journal navigation" className="journal-nav">
           <a className="active" href="#calendar">Calendar</a>
-          <a href="#selected-day">Selected day</a>
+          <a href="#selected-day">Day notes</a>
           <a href="#writing-studio">Writing studio</a>
           <Link href="/relive">Relive moments</Link>
+          <a href="#journal-care">Privacy & backup</a>
           <Link href="/account">Account</Link>
-          <a href="#insights">Insights</a>
         </nav>
 
         <div className="sidebar-note">
-          <span>Increment 4</span>
-          <p>Deeper mood scenes, calendar travel, and memory reliving are now part of the dashboard.</p>
+          <span>Private journal</span>
+          <p>Your moments stay organized by date, mood, and account so they are easy to revisit later.</p>
         </div>
       </aside>
 
@@ -453,16 +453,22 @@ export function JournalDashboard() {
             </div>
           </section>
 
-          <section className="dashboard-card account-card" id="insights">
-            <span className="section-kicker">MEMORY DETAILS</span>
-            <h2>Signed in locally.</h2>
+          <section className="dashboard-card account-card" id="journal-care">
+            <span className="section-kicker">PRIVACY & BACKUP</span>
+            <h2>Keep your journal yours.</h2>
             <span className="account-email-pill" title={session.email}>
               {session.email}
             </span>
             <p>
-              Your demo journal now supports animated mood writing, account-scoped entries, local updates, and calendar
-              travel.
+              Manage privacy options, theme preferences, encrypted exports, and account deletion from one dedicated
+              settings area.
             </p>
+            <div className="account-card-actions">
+              <Link className="button button-primary" href="/account">
+                Open account center
+                <span aria-hidden="true">→</span>
+              </Link>
+            </div>
           </section>
         </div>
       </section>

@@ -3,10 +3,14 @@
 import { useEffect, useState } from "react";
 
 const phrases = [
-  "the moments worth keeping.",
-  "the feelings between the plans.",
-  "a kinder view of your days.",
+  "Remember more.",
+  "Track feelings.",
+  "Relive the moments.",
 ];
+
+const longestPhrase = phrases.reduce((longest, phrase) =>
+  phrase.length > longest.length ? phrase : longest,
+);
 
 export function TypewriterText() {
   const [phraseIndex, setPhraseIndex] = useState(0);
@@ -47,8 +51,13 @@ export function TypewriterText() {
 
   return (
     <span aria-label={phrases[phraseIndex]} className="typewriter">
-      <span aria-hidden="true">{text}</span>
-      <span aria-hidden="true" className="typewriter-cursor" />
+      <span aria-hidden="true" className="typewriter-placeholder">
+        {longestPhrase}
+      </span>
+      <span aria-hidden="true" className="typewriter-text">
+        {text}
+        <span aria-hidden="true" className="typewriter-cursor" />
+      </span>
     </span>
   );
 }

@@ -83,7 +83,7 @@ export function SignUpForm() {
     const code = createVerificationCode();
     setVerificationCode(code);
     setStep("verify");
-    setStatus("Verification code generated. In production, this is where the email provider will send it.");
+    setStatus("Verification code ready. Enter it below to continue.");
   }
 
   async function handleVerifySubmit(event: FormEvent<HTMLFormElement>) {
@@ -91,7 +91,7 @@ export function SignUpForm() {
     resetMessages();
 
     if (codeInput.trim() !== verificationCode) {
-      setError("That code does not match. Check the demo email card and try again.");
+      setError("That code does not match. Check the verification card and try again.");
       return;
     }
 
@@ -191,7 +191,7 @@ export function SignUpForm() {
               type="checkbox"
             />
             <span>
-              I understand this increment uses local demo storage until the production privacy layer is added.
+              I understand Happiness Journal will use my account details to protect and personalize my journal.
             </span>
           </label>
 
@@ -206,10 +206,10 @@ export function SignUpForm() {
       ) : (
         <form className="auth-form" onSubmit={handleVerifySubmit}>
           <div className="demo-email-card">
-            <span>Demo verification email</span>
+            <span>Verification code</span>
             <strong>{verificationCode}</strong>
             <p>
-              In a deployed version, this six-digit code will be sent to <b>{email.trim().toLowerCase()}</b>.
+              Enter this six-digit code to verify <b>{email.trim().toLowerCase()}</b>.
             </p>
           </div>
 

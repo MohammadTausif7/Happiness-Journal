@@ -38,6 +38,12 @@ const days = [
 
 const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+const liveMoments = [
+  { emoji: "😊", title: "Morning walk", detail: "Bright start before work" },
+  { emoji: "😔", title: "Honest reset", detail: "Rainy, but useful" },
+  { emoji: "🥰", title: "Dinner together", detail: "People I love" },
+];
+
 export function ProductPreview() {
   return (
     <div aria-label="Preview of the Happiness Journal calendar" className="preview-wrap">
@@ -62,36 +68,58 @@ export function ProductPreview() {
             <span className="side-item">◌</span>
           </aside>
 
-          <div className="calendar-panel">
-            <div className="calendar-toolbar">
-              <div>
-                <span className="eyebrow">YOUR MONTH</span>
-                <h2>May 2026</h2>
+          <div className="preview-workspace">
+            <div className="calendar-panel">
+              <div className="calendar-toolbar">
+                <div>
+                  <span className="eyebrow">YOUR MONTH</span>
+                  <h2>May 2026</h2>
+                </div>
+                <button className="preview-new-button" tabIndex={-1} type="button">
+                  <span>＋</span> New moment
+                </button>
               </div>
-              <button className="preview-new-button" tabIndex={-1} type="button">
-                <span>＋</span> New moment
-              </button>
+
+              <div className="calendar-grid">
+                {weekDays.map((day) => (
+                  <div className="weekday" key={day}>
+                    {day}
+                  </div>
+                ))}
+                {days.map((item, index) => (
+                  <div
+                    className={`calendar-day ${item.faded ? "faded" : ""} ${item.mood ? `mood-${item.mood}` : ""}`}
+                    key={`${item.day}-${index}`}
+                  >
+                    <span>{item.day}</span>
+                    {item.emoji && <b>{item.emoji}</b>}
+                    {item.mood === "happy" && <i className="day-sparkle">✦</i>}
+                    {item.mood === "love" && <i className="day-heart">♥</i>}
+                    {item.mood === "sad" && <i className="day-rain">•••</i>}
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="calendar-grid">
-              {weekDays.map((day) => (
-                <div className="weekday" key={day}>
-                  {day}
-                </div>
-              ))}
-              {days.map((item, index) => (
-                <div
-                  className={`calendar-day ${item.faded ? "faded" : ""} ${item.mood ? `mood-${item.mood}` : ""}`}
-                  key={`${item.day}-${index}`}
-                >
-                  <span>{item.day}</span>
-                  {item.emoji && <b>{item.emoji}</b>}
-                  {item.mood === "happy" && <i className="day-sparkle">✦</i>}
-                  {item.mood === "love" && <i className="day-heart">♥</i>}
-                  {item.mood === "sad" && <i className="day-rain">•••</i>}
-                </div>
-              ))}
-            </div>
+            <aside className="preview-detail-panel">
+              <span className="eyebrow">TODAY</span>
+              <h3>Capture the day while it is still warm.</h3>
+              <div className="preview-writing-card">
+                <span>😊</span>
+                <p>Lunch outside, no rush, sunlight on the table...</p>
+              </div>
+              <div className="preview-moment-stack">
+                {liveMoments.map((moment) => (
+                  <article key={moment.title}>
+                    <span>{moment.emoji}</span>
+                    <div>
+                      <strong>{moment.title}</strong>
+                      <small>{moment.detail}</small>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </aside>
           </div>
         </div>
       </div>

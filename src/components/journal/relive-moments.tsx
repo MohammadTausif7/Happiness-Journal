@@ -115,7 +115,7 @@ export function ReliveMoments() {
         <section className="empty-session-card">
           <BrandMark size={46} />
           <h1>Please sign in first.</h1>
-          <p>Your timeline is connected to your local Happiness Journal demo account.</p>
+          <p>Sign in to revisit your saved journal timeline.</p>
           <Link className="button button-primary" href="/sign-in">
             Go to sign in
           </Link>

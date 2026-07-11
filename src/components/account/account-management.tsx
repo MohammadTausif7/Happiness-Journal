@@ -18,7 +18,7 @@ import type { AccountTheme, CalendarDefaultView, DemoAccount, DemoSession } from
 import type { JournalEntry } from "@/lib/demo-journal";
 
 const themes: Array<{ id: AccountTheme; label: string; description: string }> = [
-  { id: "system", label: "System", description: "Follow the device preference later in production." },
+  { id: "system", label: "System", description: "Follow your device preference." },
   { id: "light", label: "Light", description: "Clean paper-like workspace." },
   { id: "sunset", label: "Sunset", description: "Warm peach and lavender glow." },
   { id: "calm", label: "Calm", description: "Soft green and sky tones." },
@@ -129,7 +129,7 @@ export function AccountManagement() {
     try {
       updateAccountProfile({ accountId: account.id, name, email });
       refreshAccount(account.id);
-      setStatus("Profile updated and local session refreshed.");
+      setStatus("Profile updated.");
     } catch (profileError) {
       setError(profileError instanceof Error ? profileError.message : "Unable to update profile.");
     }
@@ -147,7 +147,7 @@ export function AccountManagement() {
     if (updatedAccount) {
       setAccount(updatedAccount);
       applyTheme(updatedAccount.preferences.theme ?? "system");
-      setStatus("Preferences saved locally.");
+      setStatus("Preferences saved.");
     }
   }
 
@@ -175,7 +175,7 @@ export function AccountManagement() {
         account: safeAccount,
         entries,
         securityNote:
-          "Demo export encrypted in the browser. Production exports should be generated server-side with audited access logs.",
+          "This export is encrypted with your passphrase. Keep the passphrase somewhere safe because it cannot be recovered.",
       };
       const encryptedArchive = await encryptExportPayload(
         payload,
@@ -236,7 +236,7 @@ export function AccountManagement() {
         <section className="empty-session-card">
           <BrandMark size={46} />
           <h1>Please sign in first.</h1>
-          <p>Account settings are connected to your local Happiness Journal session.</p>
+          <p>Sign in to manage your profile, privacy options, exports, and account settings.</p>
           <Link className="button button-primary" href="/sign-in">
             Go to sign in
           </Link>
@@ -378,7 +378,7 @@ export function AccountManagement() {
           <span className="section-kicker">DATA CONTROLS</span>
           <h2>Export and audit</h2>
           <div className="settings-stat-list">
-            <p><strong>{accountStats.entryCount}</strong> journal entries saved locally</p>
+            <p><strong>{accountStats.entryCount}</strong> journal entries saved</p>
             <p><strong>{accountStats.createdAt}</strong> account created</p>
             <p><strong>{accountStats.latestEntryDate}</strong> latest entry date</p>
           </div>
@@ -399,13 +399,13 @@ export function AccountManagement() {
         </article>
 
         <article className="settings-card security-card">
-          <span className="section-kicker">PRODUCTION READINESS</span>
-          <h2>Security checklist</h2>
+          <span className="section-kicker">SECURITY</span>
+          <h2>How your journal is protected</h2>
           <ul>
-            <li>Local demo passwords are hashed; production must use server-side password hashing such as Argon2id/bcrypt.</li>
-            <li>Journal exports use browser AES-GCM encryption; production should add server audit logs and signed URLs.</li>
-            <li>Account deletion removes local account and journal data; production needs transactional database deletion.</li>
-            <li>Email and payment providers will require environment-backed secrets and webhook verification.</li>
+            <li>Your password is stored as a one-way hash.</li>
+            <li>Journal exports are encrypted with a passphrase you choose.</li>
+            <li>Account deletion removes your profile and journal entries from this browser.</li>
+            <li>Privacy controls keep mood summaries and reminders under your control.</li>
           </ul>
         </article>
 
@@ -413,7 +413,7 @@ export function AccountManagement() {
           <span className="section-kicker">DANGER ZONE</span>
           <h2>Delete account</h2>
           <p>
-            This removes the local demo account, session, and all account-scoped journal entries from this browser.
+            This removes your account, current session, and saved journal entries from this browser.
           </p>
           <form className="settings-form" onSubmit={handleDeleteAccount}>
             <label>
@@ -435,7 +435,7 @@ export function AccountManagement() {
               />
             </label>
             <button className="button button-primary" disabled={isDeleting} type="submit">
-              {isDeleting ? "Deleting..." : "Delete local account"}
+              {isDeleting ? "Deleting..." : "Delete account"}
             </button>
           </form>
         </article>

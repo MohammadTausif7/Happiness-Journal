@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { BrandMark, Wordmark } from "@/components/brand-mark";
 import { ProductPreview } from "@/components/product-preview";
 import { SiteHeader } from "@/components/site-header";
@@ -7,25 +8,31 @@ import { TypewriterText } from "@/components/typewriter-text";
 const features = [
   {
     icon: "calendar",
-    label: "A calendar with feeling",
+    label: "Mood calendar",
     description:
-      "See more than dates. Your month becomes a gentle map of moods, memories, and meaningful patterns.",
+      "See every saved day as a living calendar, with mood markers, patterns, and memories one click away.",
     accent: "peach",
   },
   {
     icon: "spark",
-    label: "Moments that feel alive",
+    label: "Animated journaling",
     description:
-      "Every mood has a little atmosphere—from warm sunshine to soft rain and floating hearts.",
+      "Every mood has a little atmosphere—from blooming sunshine to soft rain, hearts, stars, and calm skies.",
     accent: "lavender",
   },
   {
     icon: "lock",
-    label: "Private by design",
+    label: "Private account space",
     description:
-      "Your journal is personal. Clear privacy controls and secure accounts keep it that way.",
+      "Sign in, manage privacy, export your data, and keep your personal journal scoped to your account.",
     accent: "mint",
   },
+];
+
+const heroMetrics = [
+  { value: "60 sec", label: "to capture a moment" },
+  { value: "7 moods", label: "with playful scenes" },
+  { value: "Private", label: "account-first journal" },
 ];
 
 const moods = [
@@ -36,6 +43,31 @@ const moods = [
   { emoji: "😮", label: "Surprised", className: "mood-blue" },
   { emoji: "😔", label: "Sad", className: "mood-slate" },
   { emoji: "😤", label: "Frustrated", className: "mood-coral" },
+];
+
+const storyHighlights = [
+  {
+    label: "Write",
+    title: "Capture what happened",
+    text: "Pick a date, title the memory, choose a mood, and write the honest version.",
+  },
+  {
+    label: "Feel",
+    title: "See the mood come alive",
+    text: "The page responds with weather, light, hearts, stars, or calm ambience.",
+  },
+  {
+    label: "Relive",
+    title: "Return through a timeline",
+    text: "Past entries are arranged by date so older moments are easy to rediscover.",
+  },
+];
+
+const readinessItems = [
+  "Account authentication boundaries",
+  "Email-code provider handoff",
+  "Database and encrypted export seams",
+  "Donation checkout validation",
 ];
 
 function FeatureIcon({ name }: { name: string }) {
@@ -75,33 +107,48 @@ export default function Home() {
       <section className="hero section-shell">
         <div aria-hidden="true" className="hero-orb hero-orb-left" />
         <div aria-hidden="true" className="hero-orb hero-orb-right" />
+        <div aria-hidden="true" className="hero-mood-orbit">
+          <span>😊</span>
+          <span>🥰</span>
+          <span>😌</span>
+          <span>🤩</span>
+        </div>
         <div className="hero-copy">
           <div className="announcement">
             <span>✦</span>
-            A brighter way to remember
+            Private mood journal for everyday life
           </div>
           <h1>
-            Your days deserve
+            Understand your days.
             <br />
             <TypewriterText />
           </h1>
           <p className="hero-lead">
-            A private daily journal that transforms moods and memories into a
-            beautiful calendar of your life.
+            Happiness Journal helps you log what happened, choose how it felt,
+            and revisit your memories through a beautiful mood calendar.
           </p>
           <div className="hero-actions">
             <Link className="button button-primary" href="/sign-up">
-              Begin your journal
+              Start your private journal
               <span aria-hidden="true">↗</span>
             </Link>
             <Link className="play-link" href="#experience">
               <span aria-hidden="true" className="play-icon">▶</span>
-              See how it feels
+              See the product tour
             </Link>
+          </div>
+          <div aria-label="Happiness Journal product summary" className="hero-metrics">
+            {heroMetrics.map((metric) => (
+              <span key={metric.label}>
+                <b>{metric.value}</b>
+                <small>{metric.label}</small>
+              </span>
+            ))}
           </div>
           <p className="hero-note">
             <span aria-hidden="true">✓</span> Free to use
-            <span aria-hidden="true">·</span> Your moments stay yours
+            <span aria-hidden="true">·</span> Designed for privacy
+            <span aria-hidden="true">·</span> Donation-supported
           </p>
         </div>
 
@@ -124,12 +171,38 @@ export default function Home() {
             <div
               className={`mood-pill ${mood.className}`}
               key={mood.label}
-              style={{ "--mood-index": index } as React.CSSProperties}
+              style={{ "--mood-index": index } as CSSProperties}
             >
               <span>{mood.emoji}</span>
               <small>{mood.label}</small>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section aria-labelledby="glance-heading" className="glance-section section-shell">
+        <div className="glance-card">
+          <div className="section-heading">
+            <span className="section-kicker">AT A GLANCE</span>
+            <h2 id="glance-heading">A journal that explains itself before you even click.</h2>
+            <p>
+              The home screen is built around the three things users need to understand
+              immediately: write a moment, see its mood, and relive it later.
+            </p>
+          </div>
+          <div className="glance-rail" aria-label="Core product flow">
+            {storyHighlights.map((item, index) => (
+              <article
+                className="glance-step"
+                key={item.label}
+                style={{ "--glance-index": index } as CSSProperties}
+              >
+                <span>{item.label}</span>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -226,6 +299,31 @@ export default function Home() {
               <span><b>✓</b> No selling personal entries</span>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="readiness-heading" className="readiness-section section-shell">
+        <div className="readiness-card">
+          <div>
+            <span className="section-kicker">TRUSTED BY DESIGN</span>
+            <h2 id="readiness-heading">A calmer journal needs careful foundations.</h2>
+            <p>
+              Happiness Journal is designed around private accounts, controlled
+              exports, secure reminders, and optional one-time contributions.
+            </p>
+          </div>
+          <ul>
+            {readinessItems.map((item) => (
+              <li key={item}>
+                <span aria-hidden="true">✓</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+          <Link className="button button-dark" href="/contribute">
+            Preview donation flow
+            <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </section>
 

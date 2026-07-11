@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   formatDateKey,
   getMoodMeta,
@@ -39,6 +40,19 @@ export function JournalEntryEditor({
   const [message, setMessage] = useState("");
   const moodMeta = getMoodMeta(mood);
 
+  useEffect(() => {
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
+  }, []);
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -74,7 +88,11 @@ export function JournalEntryEditor({
     }
   }
 
-  return (
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(
     <div aria-modal="true" className="journal-editor-overlay" role="dialog">
       <button aria-label="Close journal editor" className="editor-scrim" onClick={onClose} type="button" />
 
@@ -180,6 +198,7 @@ export function JournalEntryEditor({
           </div>
         </form>
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }

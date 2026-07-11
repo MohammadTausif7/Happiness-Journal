@@ -80,6 +80,22 @@ The fifth increment adds the user-owned settings layer:
 
 Increment 5 continues to use browser-local demo storage, but it introduces the account and privacy workflows that will map to server-backed production infrastructure later.
 
+## Increment 6: landing experience and contribution readiness
+
+The sixth increment improves the first impression and prepares key production seams:
+
+- Clearer public hero copy so new visitors immediately understand the app as a private mood journal
+- Animated mood orbit, product metrics, richer calendar preview, and live memory cards on the landing page
+- “At a glance” product flow explaining write, feel, and relive in one scan
+- Production-readiness section that names the auth, email, database, export, and payment boundaries
+- Dedicated `/contribute` page for one-time contribution checkout preview
+- Client-side contribution validation for amount, email, and note length
+- `/api/contributions/checkout` route that validates payment requests and safely refuses live checkout until provider credentials exist
+- `/api/health` route for checking missing production environment configuration
+- Expanded `.env.example` and production-readiness documentation for final deployment planning
+
+Increment 6 still does not process real payments. The contribution endpoint is intentionally guarded until Stripe or another payment provider is configured in production.
+
 ## Local development
 
 Requirements:
@@ -110,8 +126,8 @@ npm run build
 3. Journal dashboard and calendar views
 4. Journal editor and animated mood experiences
 5. Account, privacy, themes, and email preferences
-6. Secure one-time contributions with Stripe
-7. Production hardening, testing, tutorial media, and deployment
+6. Landing experience polish and secure contribution readiness
+7. Production backend, provider integrations, testing, tutorial media, and deployment
 
 ## Current structure
 
@@ -122,6 +138,7 @@ src/
 │   ├── icon.svg          # Application icon
 │   ├── account/page.tsx  # Account, privacy, and data settings route
 │   ├── layout.tsx        # Root metadata and document structure
+│   ├── contribute/page.tsx # Contribution checkout preview
 │   ├── journal/page.tsx  # Signed-in dashboard shell
 │   ├── page.tsx          # Public landing page
 │   ├── relive/page.tsx   # Timeline page for reading past moments
@@ -135,6 +152,7 @@ src/
     ├── account/          # Account management and privacy controls
     ├── auth/             # Sign-up, sign-in, and auth page layout
     ├── brand-mark.tsx    # Reusable brand symbol and wordmark
+    ├── contributions/    # Contribution checkout preview form
     ├── journal/          # Dashboard and journal editor components
     ├── product-preview.tsx
     ├── site-header.tsx
@@ -152,6 +170,8 @@ The Increment 3 journal data flow is also local-only. It demonstrates account-sc
 The Increment 4 editor saves and updates local entries only. Production work will still need server-side validation, authorization checks, encrypted storage, and audit-safe deletion paths.
 
 The Increment 5 account center demonstrates privacy workflows locally. Production readiness still requires a real database, server-side sessions, strong password hashing, encrypted storage at rest, transactional account deletion, monitored export jobs, environment-managed secrets, and provider-backed email delivery.
+
+The Increment 6 contribution flow validates checkout requests but does not create live payment sessions yet. Production readiness still requires Stripe or another payment provider, server-side checkout session creation, webhook signature verification, deployment-managed secrets, and clear donation/refund policy language.
 
 ## License
 
