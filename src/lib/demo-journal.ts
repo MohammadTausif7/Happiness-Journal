@@ -143,6 +143,14 @@ export function getJournalEntries(accountId: string) {
     .sort((first, second) => second.date.localeCompare(first.date) || second.updatedAt.localeCompare(first.updatedAt));
 }
 
+export function replaceJournalEntries(entries: JournalEntry[]) {
+  writeJson(ENTRIES_KEY, entries);
+}
+
+export function deleteJournalEntries(accountId: string) {
+  replaceJournalEntries(getAllJournalEntries().filter((entry) => entry.accountId !== accountId));
+}
+
 export function ensureJournalSeed(accountId: string) {
   const allEntries = getAllJournalEntries();
 

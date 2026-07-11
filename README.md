@@ -64,6 +64,22 @@ The fourth increment makes writing feel like the core product experience:
 
 Increment 4 still uses local browser persistence, but the editor flow now mirrors the end-state product interaction more closely.
 
+## Increment 5: account management and privacy controls
+
+The fifth increment adds the user-owned settings layer:
+
+- Dedicated account center for profile, privacy, preferences, export, and deletion controls
+- Profile update workflow with email validation and duplicate-email protection
+- Privacy toggles for email verification codes, private mood summaries, encrypted exports, and reminder emails
+- Theme preferences with live local theme application
+- Calendar default view preference that is respected by the journal dashboard
+- Account-scoped encrypted export using Web Crypto AES-GCM with PBKDF2-SHA-256 key derivation
+- Local account deletion workflow requiring password confirmation and a typed DELETE acknowledgement
+- Data audit summary showing account creation date, entry count, and latest journal date
+- Production-readiness checklist for authentication, encryption, database deletion, exports, and secret management
+
+Increment 5 continues to use browser-local demo storage, but it introduces the account and privacy workflows that will map to server-backed production infrastructure later.
+
 ## Local development
 
 Requirements:
@@ -104,6 +120,7 @@ src/
 ├── app/
 │   ├── globals.css       # Design tokens, responsive layout, and animations
 │   ├── icon.svg          # Application icon
+│   ├── account/page.tsx  # Account, privacy, and data settings route
 │   ├── layout.tsx        # Root metadata and document structure
 │   ├── journal/page.tsx  # Signed-in dashboard shell
 │   ├── page.tsx          # Public landing page
@@ -112,8 +129,10 @@ src/
 │   └── sign-up/page.tsx  # Sign-up route
 ├── lib/
 │   ├── demo-auth.ts      # Temporary browser-local auth helpers
-│   └── demo-journal.ts   # Temporary browser-local journal data helpers
+│   ├── demo-journal.ts   # Temporary browser-local journal data helpers
+│   └── demo-privacy.ts   # Browser-local encrypted export helpers
 └── components/
+    ├── account/          # Account management and privacy controls
     ├── auth/             # Sign-up, sign-in, and auth page layout
     ├── brand-mark.tsx    # Reusable brand symbol and wordmark
     ├── journal/          # Dashboard and journal editor components
@@ -131,6 +150,8 @@ The Increment 2 auth flow is a local demo implementation. It is suitable for por
 The Increment 3 journal data flow is also local-only. It demonstrates account-scoped retrieval, calendar updates, and mood summaries before replacing the storage layer with production APIs.
 
 The Increment 4 editor saves and updates local entries only. Production work will still need server-side validation, authorization checks, encrypted storage, and audit-safe deletion paths.
+
+The Increment 5 account center demonstrates privacy workflows locally. Production readiness still requires a real database, server-side sessions, strong password hashing, encrypted storage at rest, transactional account deletion, monitored export jobs, environment-managed secrets, and provider-backed email delivery.
 
 ## License
 

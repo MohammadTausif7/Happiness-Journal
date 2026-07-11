@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { BrandMark } from "@/components/brand-mark";
-import { getSession } from "@/lib/demo-auth";
+import { getAccountById, getSession } from "@/lib/demo-auth";
 import { ensureJournalSeed, getMoodMeta, parseDateKey } from "@/lib/demo-journal";
 import type { DemoSession } from "@/lib/demo-auth";
 import type { JournalEntry } from "@/lib/demo-journal";
@@ -66,6 +66,10 @@ function MoodScene({ emoji }: { emoji: string }) {
   );
 }
 
+function applyTheme(theme: string) {
+  document.documentElement.dataset.accountTheme = theme;
+}
+
 export function ReliveMoments() {
   const [session, setSession] = useState<DemoSession | null>(null);
   const [entries, setEntries] = useState<JournalEntry[]>([]);
@@ -74,14 +78,21 @@ export function ReliveMoments() {
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      const currentSession = getSession();
-      setSession(currentSession);
+      try {
+        const currentSession = getSession();
+        setSession(currentSession);
 
-      if (currentSession) {
-        setEntries(ensureJournalSeed(currentSession.accountId));
+        if (currentSession) {
+          const currentAccount = getAccountById(currentSession.accountId);
+          setEntries(ensureJournalSeed(currentSession.accountId));
+
+          if (currentAccount) {
+            applyTheme(currentAccount.preferences.theme ?? "system");
+          }
+        }
+      } finally {
+        setIsReady(true);
       }
-
-      setIsReady(true);
     }, 0);
 
     return () => window.clearTimeout(timeoutId);

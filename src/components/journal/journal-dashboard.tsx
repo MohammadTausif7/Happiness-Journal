@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BrandMark } from "@/components/brand-mark";
 import { JournalEntryEditor } from "@/components/journal/journal-entry-editor";
-import { clearSession, getSession } from "@/lib/demo-auth";
+import { clearSession, getAccountById, getSession } from "@/lib/demo-auth";
 import {
   ensureJournalSeed,
   formatDateKey,
@@ -91,6 +91,10 @@ function getFavoriteMood(entries: JournalEntry[]) {
   return favoriteMood ? getMoodMeta(favoriteMood) : null;
 }
 
+function applyTheme(theme: string) {
+  document.documentElement.dataset.accountTheme = theme;
+}
+
 export function JournalDashboard() {
   const router = useRouter();
   const todayKey = formatDateKey(new Date());
@@ -106,15 +110,23 @@ export function JournalDashboard() {
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      const currentSession = getSession();
-      setSession(currentSession);
+      try {
+        const currentSession = getSession();
+        setSession(currentSession);
 
-      if (currentSession) {
-        setEntries(ensureJournalSeed(currentSession.accountId));
-        setLastSyncedAt(getLastSyncAt(currentSession.accountId));
+        if (currentSession) {
+          const currentAccount = getAccountById(currentSession.accountId);
+          setEntries(ensureJournalSeed(currentSession.accountId));
+          setLastSyncedAt(getLastSyncAt(currentSession.accountId));
+
+          if (currentAccount) {
+            setCalendarView(currentAccount.preferences.calendarDefaultView ?? "month");
+            applyTheme(currentAccount.preferences.theme ?? "system");
+          }
+        }
+      } finally {
+        setIsReady(true);
       }
-
-      setIsReady(true);
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
@@ -224,6 +236,7 @@ export function JournalDashboard() {
           <a href="#selected-day">Selected day</a>
           <a href="#writing-studio">Writing studio</a>
           <Link href="/relive">Relive moments</Link>
+          <Link href="/account">Account</Link>
           <a href="#insights">Insights</a>
         </nav>
 
@@ -256,6 +269,9 @@ export function JournalDashboard() {
             <button className="button button-secondary" onClick={handleRefresh} type="button">
               Refresh data
             </button>
+            <Link className="button button-secondary" href="/account">
+              Account
+            </Link>
             <button className="button button-dark" onClick={handleSignOut} type="button">
               Sign out
             </button>
@@ -439,7 +455,10 @@ export function JournalDashboard() {
 
           <section className="dashboard-card account-card" id="insights">
             <span className="section-kicker">MEMORY DETAILS</span>
-            <h2>{session.email}</h2>
+            <h2>Signed in locally.</h2>
+            <span className="account-email-pill" title={session.email}>
+              {session.email}
+            </span>
             <p>
               Your demo journal now supports animated mood writing, account-scoped entries, local updates, and calendar
               travel.

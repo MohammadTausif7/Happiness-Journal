@@ -5,9 +5,14 @@ export type DemoAccount = {
   passwordHash: string;
   createdAt: string;
   verifiedAt: string;
+  updatedAt?: string;
   preferences: {
     twoFactorEmail: boolean;
     reminderEmails: boolean;
+    theme?: AccountTheme;
+    calendarDefaultView?: CalendarDefaultView;
+    privateMoodStats?: boolean;
+    encryptedExportsOnly?: boolean;
   };
 };
 
@@ -17,6 +22,9 @@ export type DemoSession = {
   name: string;
   signedInAt: string;
 };
+
+export type AccountTheme = "system" | "light" | "sunset" | "calm" | "midnight";
+export type CalendarDefaultView = "month" | "week" | "today";
 
 const ACCOUNTS_KEY = "happiness-journal:accounts";
 const SESSION_KEY = "happiness-journal:session";
@@ -29,6 +37,20 @@ function assertBrowserStorage() {
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
+}
+
+function normalizeAccount(account: DemoAccount): DemoAccount {
+  return {
+    ...account,
+    preferences: {
+      twoFactorEmail: account.preferences?.twoFactorEmail ?? true,
+      reminderEmails: account.preferences?.reminderEmails ?? true,
+      theme: account.preferences?.theme ?? "system",
+      calendarDefaultView: account.preferences?.calendarDefaultView ?? "month",
+      privateMoodStats: account.preferences?.privateMoodStats ?? true,
+      encryptedExportsOnly: account.preferences?.encryptedExportsOnly ?? true,
+    },
+  };
 }
 
 function readJson<T>(key: string, fallback: T): T {
@@ -67,12 +89,16 @@ export function createVerificationCode() {
 }
 
 export function getAccounts() {
-  return readJson<DemoAccount[]>(ACCOUNTS_KEY, []);
+  return readJson<DemoAccount[]>(ACCOUNTS_KEY, []).map(normalizeAccount);
 }
 
 export function findAccountByEmail(email: string) {
   const normalizedEmail = normalizeEmail(email);
   return getAccounts().find((account) => account.email === normalizedEmail) ?? null;
+}
+
+export function getAccountById(accountId: string) {
+  return getAccounts().find((account) => account.id === accountId) ?? null;
 }
 
 export async function registerAccount(input: {
@@ -99,6 +125,10 @@ export async function registerAccount(input: {
     preferences: {
       twoFactorEmail: true,
       reminderEmails: input.reminderEmails,
+      theme: "system",
+      calendarDefaultView: "month",
+      privateMoodStats: true,
+      encryptedExportsOnly: true,
     },
   };
 
@@ -136,4 +166,86 @@ export function getSession() {
 export function clearSession() {
   assertBrowserStorage();
   window.localStorage.removeItem(SESSION_KEY);
+}
+
+export function updateAccountProfile(input: {
+  accountId: string;
+  name: string;
+  email: string;
+}): DemoAccount | null {
+  const email = normalizeEmail(input.email);
+  const accounts = getAccounts();
+  const existingEmailOwner = accounts.find((account) => account.email === email && account.id !== input.accountId);
+
+  if (existingEmailOwner) {
+    throw new Error("That email is already used by another account.");
+  }
+
+  let updatedAccount: DemoAccount | null = null;
+  const updatedAccounts = accounts.map((account) => {
+    if (account.id !== input.accountId) {
+      return account;
+    }
+
+    updatedAccount = {
+      ...account,
+      name: input.name.trim(),
+      email,
+      updatedAt: new Date().toISOString(),
+    };
+
+    return updatedAccount;
+  });
+
+  writeJson(ACCOUNTS_KEY, updatedAccounts);
+
+  if (updatedAccount) {
+    saveSession(updatedAccount);
+  }
+
+  return updatedAccount;
+}
+
+export function updateAccountPreferences(
+  accountId: string,
+  preferences: Partial<DemoAccount["preferences"]>,
+): DemoAccount | null {
+  let updatedAccount: DemoAccount | null = null;
+  const updatedAccounts = getAccounts().map((account) => {
+    if (account.id !== accountId) {
+      return account;
+    }
+
+    updatedAccount = {
+      ...account,
+      updatedAt: new Date().toISOString(),
+      preferences: {
+        ...account.preferences,
+        ...preferences,
+      },
+    };
+
+    return updatedAccount;
+  });
+
+  writeJson(ACCOUNTS_KEY, updatedAccounts);
+  return updatedAccount;
+}
+
+export async function verifyAccountPassword(accountId: string, password: string) {
+  const account = getAccountById(accountId);
+
+  if (!account) {
+    return false;
+  }
+
+  return account.passwordHash === (await hashPassword(password));
+}
+
+export function deleteAccount(accountId: string) {
+  writeJson(
+    ACCOUNTS_KEY,
+    getAccounts().filter((account) => account.id !== accountId),
+  );
+  clearSession();
 }
