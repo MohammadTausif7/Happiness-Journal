@@ -357,10 +357,16 @@ export default function Home() {
               <Link href="/contribute">Contribute</Link>
             </div>
             <div>
-              <strong>Company</strong>
-              <Link href="/about">Our story</Link>
-              <Link href="mailto:hello@happinessjournal.app">Contact</Link>
-              <Link href="/privacy">Privacy</Link>
+              <strong>Connect</strong>
+              <Link href="https://github.com/MohammadTausif7" rel="noreferrer" target="_blank">
+                GitHub
+              </Link>
+              <Link href="https://github.com/MohammadTausif7/Happiness-Journal" rel="noreferrer" target="_blank">
+                Project repo
+              </Link>
+              <Link href="https://www.linkedin.com/in/mohammad7/" rel="noreferrer" target="_blank">
+                LinkedIn
+              </Link>
             </div>
             <div>
               <strong>Account</strong>
