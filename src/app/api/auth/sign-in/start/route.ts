@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       message: delivery.sent ? "Two-factor code sent." : "Two-factor code ready.",
       devCode: delivery.devCode,
     });
-  } catch {
-    return serverError();
+  } catch (error) {
+    return serverError(error, "auth.sign-in.start");
   }
 }

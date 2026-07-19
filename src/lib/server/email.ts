@@ -48,7 +48,8 @@ export async function sendVerificationCode({ to, code, purpose }: SendVerificati
   });
 
   if (!response.ok) {
-    throw new Error("Unable to send verification email.");
+    const details = await response.text().catch(() => "");
+    throw new Error(`Unable to send verification email. Resend responded with ${response.status}${details ? `: ${details}` : "."}`);
   }
 
   return {

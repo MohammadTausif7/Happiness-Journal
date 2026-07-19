@@ -65,7 +65,7 @@ export async function POST(request: Request) {
       message: delivery.sent ? "Verification code sent." : "Verification code ready.",
       devCode: delivery.devCode,
     });
-  } catch {
-    return serverError();
+  } catch (error) {
+    return serverError(error, "auth.sign-up.start");
   }
 }
