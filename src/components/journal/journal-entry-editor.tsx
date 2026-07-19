@@ -17,6 +17,13 @@ type JournalEntryEditorProps = {
   selectedDate: string;
   onClose: () => void;
   onSaved: (entry: JournalEntry) => void;
+  onPersist?: (input: {
+    id?: string;
+    date: string;
+    title: string;
+    mood: JournalMood;
+    notes: string;
+  }) => Promise<JournalEntry>;
 };
 
 const prompts = [
@@ -32,6 +39,7 @@ export function JournalEntryEditor({
   selectedDate,
   onClose,
   onSaved,
+  onPersist,
 }: JournalEntryEditorProps) {
   const [date, setDate] = useState(entry?.date ?? selectedDate ?? formatDateKey(new Date()));
   const [title, setTitle] = useState(entry?.title ?? "");
@@ -53,7 +61,7 @@ export function JournalEntryEditor({
     };
   }, []);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (title.trim().length < 3) {
@@ -66,22 +74,37 @@ export function JournalEntryEditor({
       return;
     }
 
-    const savedEntry = entry
-      ? updateJournalEntry({
-          id: entry.id,
-          accountId,
-          date,
-          title,
-          mood,
-          notes,
-        })
-      : saveJournalEntry({
-          accountId,
-          date,
-          title,
-          mood,
-          notes,
-        });
+    let savedEntry: JournalEntry | null = null;
+
+    try {
+      savedEntry = onPersist
+        ? await onPersist({
+            id: entry?.id,
+            date,
+            title,
+            mood,
+            notes,
+          })
+        : entry
+          ? updateJournalEntry({
+              id: entry.id,
+              accountId,
+              date,
+              title,
+              mood,
+              notes,
+            })
+          : saveJournalEntry({
+              accountId,
+              date,
+              title,
+              mood,
+              notes,
+            });
+    } catch (saveError) {
+      setMessage(saveError instanceof Error ? saveError.message : "Unable to save this entry.");
+      return;
+    }
 
     if (savedEntry) {
       onSaved(savedEntry);

@@ -7,6 +7,14 @@ import { BrandMark } from "@/components/brand-mark";
 import { JournalEntryEditor } from "@/components/journal/journal-entry-editor";
 import { clearSession, getAccountById, getSession } from "@/lib/demo-auth";
 import {
+  serverGetJournalEntries,
+  serverGetSession,
+  serverSaveJournalEntry,
+  serverSignOut,
+  serverUpdateJournalEntry,
+  useServerApiMode,
+} from "@/lib/client/server-api";
+import {
   ensureJournalSeed,
   formatDateKey,
   getJournalEntries,
@@ -107,30 +115,46 @@ export function JournalDashboard() {
   const [formMessage, setFormMessage] = useState("");
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
+  const isServerMode = useServerApiMode();
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      try {
-        const currentSession = getSession();
-        setSession(currentSession);
-
-        if (currentSession) {
-          const currentAccount = getAccountById(currentSession.accountId);
-          setEntries(ensureJournalSeed(currentSession.accountId));
-          setLastSyncedAt(getLastSyncAt(currentSession.accountId));
-
-          if (currentAccount) {
-            setCalendarView(currentAccount.preferences.calendarDefaultView ?? "month");
-            applyTheme(currentAccount.preferences.theme ?? "system");
+      void (async () => {
+        try {
+          if (isServerMode) {
+            const result = await serverGetSession();
+            const journal = await serverGetJournalEntries();
+            setSession(result.session);
+            setEntries(journal.entries);
+            setLastSyncedAt(journal.refreshedAt);
+            setCalendarView(result.account.preferences.calendarDefaultView ?? "month");
+            applyTheme(result.account.preferences.theme ?? "system");
+            return;
           }
+
+          const currentSession = getSession();
+          setSession(currentSession);
+
+          if (currentSession) {
+            const currentAccount = getAccountById(currentSession.accountId);
+            setEntries(ensureJournalSeed(currentSession.accountId));
+            setLastSyncedAt(getLastSyncAt(currentSession.accountId));
+
+            if (currentAccount) {
+              setCalendarView(currentAccount.preferences.calendarDefaultView ?? "month");
+              applyTheme(currentAccount.preferences.theme ?? "system");
+            }
+          }
+        } catch {
+          setSession(null);
+        } finally {
+          setIsReady(true);
         }
-      } finally {
-        setIsReady(true);
-      }
+      })();
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, []);
+  }, [isServerMode]);
 
   const anchorDate = parseDateKey(selectedDate);
   const entriesByDate = useMemo(() => getEntriesByDate(entries), [entries]);
@@ -143,12 +167,25 @@ export function JournalDashboard() {
   const selectedMoodMeta = selectedEntries[0] ? getMoodMeta(selectedEntries[0].mood) : null;
 
   function handleSignOut() {
+    if (isServerMode) {
+      void serverSignOut().finally(() => router.push("/sign-in"));
+      return;
+    }
+
     clearSession();
     router.push("/sign-in");
   }
 
-  function handleRefresh() {
+  async function handleRefresh() {
     if (!session) {
+      return;
+    }
+
+    if (isServerMode) {
+      const result = await serverGetJournalEntries();
+      setEntries(result.entries);
+      setLastSyncedAt(result.refreshedAt);
+      setFormMessage("Calendar refreshed with your latest journal data.");
       return;
     }
 
@@ -186,12 +223,45 @@ export function JournalDashboard() {
     setFormMessage("");
   }
 
-  function handleEditorSaved(entry: JournalEntry) {
+  async function persistEditorEntry(input: {
+    id?: string;
+    date: string;
+    title: string;
+    mood: JournalMood;
+    notes: string;
+  }) {
+    if (!isServerMode) {
+      throw new Error("Server persistence is not enabled.");
+    }
+
+    return input.id
+      ? serverUpdateJournalEntry({
+          id: input.id,
+          date: input.date,
+          title: input.title,
+          mood: input.mood,
+          notes: input.notes,
+        })
+      : serverSaveJournalEntry({
+          date: input.date,
+          title: input.title,
+          mood: input.mood,
+          notes: input.notes,
+        });
+  }
+
+  async function handleEditorSaved(entry: JournalEntry) {
     if (!session) {
       return;
     }
 
-    setEntries(getJournalEntries(session.accountId));
+    if (isServerMode) {
+      const result = await serverGetJournalEntries();
+      setEntries(result.entries);
+    } else {
+      setEntries(getJournalEntries(session.accountId));
+    }
+
     setSelectedDate(entry.date);
     setCalendarView("week");
     setLastSyncedAt(new Date().toISOString());
@@ -483,6 +553,7 @@ export function JournalDashboard() {
             setEditingEntry(null);
           }}
           onSaved={handleEditorSaved}
+          onPersist={isServerMode ? persistEditorEntry : undefined}
           selectedDate={selectedDate}
         />
       )}

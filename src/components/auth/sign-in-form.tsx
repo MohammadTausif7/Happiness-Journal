@@ -5,6 +5,11 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createVerificationCode, saveSession, verifyCredentials } from "@/lib/demo-auth";
 import type { DemoAccount } from "@/lib/demo-auth";
+import {
+  serverSignInStart,
+  serverSignInVerify,
+  useServerApiMode,
+} from "@/lib/client/server-api";
 
 type Step = "credentials" | "verify";
 
@@ -19,6 +24,7 @@ export function SignInForm() {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isServerMode = useServerApiMode();
 
   function resetMessages() {
     setError("");
@@ -31,6 +37,30 @@ export function SignInForm() {
     setIsSubmitting(true);
 
     try {
+      if (isServerMode) {
+        const result = await serverSignInStart({ email, password });
+        setPendingAccount({
+          id: "",
+          name: email,
+          email: email.trim().toLowerCase(),
+          passwordHash: "",
+          createdAt: new Date().toISOString(),
+          verifiedAt: new Date().toISOString(),
+          preferences: {
+            twoFactorEmail: true,
+            reminderEmails: true,
+            privateMoodStats: true,
+            encryptedExportsOnly: true,
+            theme: "system",
+            calendarDefaultView: "month",
+          },
+        });
+        setVerificationCode(result.devCode ?? "");
+        setStep("verify");
+        setStatus(result.devCode ? "Two-factor code ready. Enter it below to continue." : "Two-factor code sent to your email.");
+        return;
+      }
+
       const account = await verifyCredentials(email, password);
 
       if (!account) {
@@ -42,6 +72,8 @@ export function SignInForm() {
       setVerificationCode(createVerificationCode());
       setStep("verify");
       setStatus("Two-factor code ready. Enter it below to continue.");
+    } catch (signInError) {
+      setError(signInError instanceof Error ? signInError.message : "Unable to continue sign in.");
     } finally {
       setIsSubmitting(false);
     }
@@ -59,6 +91,18 @@ export function SignInForm() {
 
     if (codeInput.trim() !== verificationCode) {
       setError("That two-factor code does not match.");
+      return;
+    }
+
+    if (isServerMode) {
+      serverSignInVerify({
+        email,
+        code: codeInput,
+      })
+        .then(() => router.push("/journal"))
+        .catch((signInError) => {
+          setError(signInError instanceof Error ? signInError.message : "Unable to verify code.");
+        });
       return;
     }
 
@@ -112,9 +156,9 @@ export function SignInForm() {
         <form className="auth-form" onSubmit={handleVerifySubmit}>
           <div className="demo-email-card purple">
             <span>Two-factor code</span>
-            <strong>{verificationCode}</strong>
+            <strong>{verificationCode || "Check email"}</strong>
             <p>
-              Use this code to finish signing in as <b>{pendingAccount?.email}</b>.
+              Use the six-digit code to finish signing in as <b>{pendingAccount?.email}</b>.
             </p>
           </div>
 

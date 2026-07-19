@@ -5,6 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import { BrandMark } from "@/components/brand-mark";
 import { getAccountById, getSession } from "@/lib/demo-auth";
 import { ensureJournalSeed, getMoodMeta, parseDateKey } from "@/lib/demo-journal";
+import {
+  serverGetJournalEntries,
+  serverGetSession,
+  useServerApiMode,
+} from "@/lib/client/server-api";
 import type { DemoSession } from "@/lib/demo-auth";
 import type { JournalEntry } from "@/lib/demo-journal";
 
@@ -75,28 +80,42 @@ export function ReliveMoments() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const isServerMode = useServerApiMode();
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      try {
-        const currentSession = getSession();
-        setSession(currentSession);
-
-        if (currentSession) {
-          const currentAccount = getAccountById(currentSession.accountId);
-          setEntries(ensureJournalSeed(currentSession.accountId));
-
-          if (currentAccount) {
-            applyTheme(currentAccount.preferences.theme ?? "system");
+      void (async () => {
+        try {
+          if (isServerMode) {
+            const result = await serverGetSession();
+            const journal = await serverGetJournalEntries();
+            setSession(result.session);
+            setEntries(journal.entries);
+            applyTheme(result.account.preferences.theme ?? "system");
+            return;
           }
+
+          const currentSession = getSession();
+          setSession(currentSession);
+
+          if (currentSession) {
+            const currentAccount = getAccountById(currentSession.accountId);
+            setEntries(ensureJournalSeed(currentSession.accountId));
+
+            if (currentAccount) {
+              applyTheme(currentAccount.preferences.theme ?? "system");
+            }
+          }
+        } catch {
+          setSession(null);
+        } finally {
+          setIsReady(true);
         }
-      } finally {
-        setIsReady(true);
-      }
+      })();
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, []);
+  }, [isServerMode]);
 
   const groupedEntries = useMemo(() => groupEntriesByMonth(entries), [entries]);
   const selectedMood = selectedEntry ? getMoodMeta(selectedEntry.mood) : null;

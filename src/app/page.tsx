@@ -119,7 +119,7 @@ export default function Home() {
             Private mood journal for everyday life
           </div>
           <h1>
-            Understand your days.
+            A personal diary to  
             <br />
             <TypewriterText />
           </h1>

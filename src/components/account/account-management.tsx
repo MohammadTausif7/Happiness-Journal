@@ -16,6 +16,15 @@ import { deleteJournalEntries, getJournalEntries } from "@/lib/demo-journal";
 import { downloadJsonFile, encryptExportPayload } from "@/lib/demo-privacy";
 import type { AccountTheme, CalendarDefaultView, DemoAccount, DemoSession } from "@/lib/demo-auth";
 import type { JournalEntry } from "@/lib/demo-journal";
+import {
+  serverDeleteAccount,
+  serverExportJournal,
+  serverGetAccount,
+  serverGetJournalEntries,
+  serverUpdatePreferences,
+  serverUpdateProfile,
+  useServerApiMode,
+} from "@/lib/client/server-api";
 
 const themes: Array<{ id: AccountTheme; label: string; description: string }> = [
   { id: "system", label: "System", description: "Follow your device preference." },
@@ -54,30 +63,51 @@ export function AccountManagement() {
   const [isReady, setIsReady] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const isServerMode = useServerApiMode();
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      try {
-        const currentSession = getSession();
-        const currentAccount = currentSession ? getAccountById(currentSession.accountId) : null;
-        setSession(currentSession);
-        setAccount(currentAccount);
+      void (async () => {
+        try {
+          if (isServerMode) {
+            const accountResult = await serverGetAccount();
+            const journalResult = await serverGetJournalEntries();
+            const serverAccount = { ...accountResult.account, passwordHash: "" };
+            setSession({
+              accountId: serverAccount.id,
+              email: serverAccount.email,
+              name: serverAccount.name,
+              signedInAt: new Date().toISOString(),
+            });
+            setAccount(serverAccount);
+            setName(serverAccount.name);
+            setEmail(serverAccount.email);
+            setEntries(journalResult.entries);
+            applyTheme(serverAccount.preferences.theme ?? "system");
+            return;
+          }
 
-        if (currentAccount) {
-          setName(currentAccount.name);
-          setEmail(currentAccount.email);
-          setEntries(getJournalEntries(currentAccount.id));
-          applyTheme(currentAccount.preferences.theme ?? "system");
+          const currentSession = getSession();
+          const currentAccount = currentSession ? getAccountById(currentSession.accountId) : null;
+          setSession(currentSession);
+          setAccount(currentAccount);
+
+          if (currentAccount) {
+            setName(currentAccount.name);
+            setEmail(currentAccount.email);
+            setEntries(getJournalEntries(currentAccount.id));
+            applyTheme(currentAccount.preferences.theme ?? "system");
+          }
+        } catch {
+          setError("Account settings could not be opened. Please sign in again or reload.");
+        } finally {
+          setIsReady(true);
         }
-      } catch {
-        setError("Account settings could not access browser storage. Please enable local storage and reload.");
-      } finally {
-        setIsReady(true);
-      }
+      })();
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, []);
+  }, [isServerMode]);
 
   const accountStats = useMemo(() => {
     const latestEntry = entries[0];
@@ -108,7 +138,7 @@ export function AccountManagement() {
     setError("");
   }
 
-  function handleProfileSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleProfileSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     clearMessages();
 
@@ -127,18 +157,38 @@ export function AccountManagement() {
     }
 
     try {
-      updateAccountProfile({ accountId: account.id, name, email });
-      refreshAccount(account.id);
+      if (isServerMode) {
+        const updatedAccount = await serverUpdateProfile({ name, email });
+        setAccount({ ...updatedAccount, passwordHash: "" });
+        setSession({
+          accountId: updatedAccount.id,
+          email: updatedAccount.email,
+          name: updatedAccount.name,
+          signedInAt: new Date().toISOString(),
+        });
+      } else {
+        updateAccountProfile({ accountId: account.id, name, email });
+        refreshAccount(account.id);
+      }
+
       setStatus("Profile updated.");
     } catch (profileError) {
       setError(profileError instanceof Error ? profileError.message : "Unable to update profile.");
     }
   }
 
-  function handlePreferenceChange(preferences: Partial<DemoAccount["preferences"]>) {
+  async function handlePreferenceChange(preferences: Partial<DemoAccount["preferences"]>) {
     clearMessages();
 
     if (!account) {
+      return;
+    }
+
+    if (isServerMode) {
+      const updatedAccount = await serverUpdatePreferences(preferences);
+      setAccount({ ...updatedAccount, passwordHash: "" });
+      applyTheme(updatedAccount.preferences.theme ?? "system");
+      setStatus("Preferences saved.");
       return;
     }
 
@@ -161,6 +211,14 @@ export function AccountManagement() {
     setIsExporting(true);
 
     try {
+      if (isServerMode) {
+        const encryptedArchive = await serverExportJournal(exportPassphrase);
+        downloadJsonFile(`happiness-journal-export-${account.email}.encrypted.json`, encryptedArchive);
+        setExportPassphrase("");
+        setStatus("Encrypted export downloaded. Keep your passphrase somewhere safe.");
+        return;
+      }
+
       const safeAccount = {
         id: account.id,
         name: account.name,
@@ -207,6 +265,15 @@ export function AccountManagement() {
     setIsDeleting(true);
 
     try {
+      if (isServerMode) {
+        await serverDeleteAccount({
+          password: deletePassword,
+          confirmation: deleteConfirmation,
+        });
+        router.push("/sign-up");
+        return;
+      }
+
       const passwordMatches = await verifyAccountPassword(account.id, deletePassword);
 
       if (!passwordMatches) {
@@ -217,6 +284,8 @@ export function AccountManagement() {
       deleteJournalEntries(account.id);
       deleteAccount(account.id);
       router.push("/sign-up");
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : "Unable to delete account.");
     } finally {
       setIsDeleting(false);
     }

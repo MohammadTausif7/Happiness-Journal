@@ -96,6 +96,23 @@ The sixth increment improves the first impression and prepares key production se
 
 Increment 6 still does not process real payments. The contribution endpoint is intentionally guarded until Stripe or another payment provider is configured in production.
 
+## Increment 7: production backend and deployment readiness
+
+The seventh increment adds the server-backed production path:
+
+- `NEXT_PUBLIC_DATA_MODE=server` switch for deployed server-backed behavior while keeping local browser mode available
+- Postgres schema initialization for accounts, sessions, verification codes, journal entries, and contributions
+- Server-side sign-up, sign-in, sign-out, and httpOnly cookie session workflows
+- Scrypt password hashing with per-account salts
+- Transactional email verification-code handoff through Resend
+- Account-scoped journal APIs for reading, creating, updating, and deleting entries
+- AES-GCM encryption for stored journal titles and notes using `ENCRYPTION_KEY`
+- Account profile, preferences, encrypted export, and deletion APIs
+- Stripe Checkout creation for one-time contributions
+- Stripe webhook signature verification for completed contribution tracking
+- Deployment health check that reports configuration readiness without exposing secret values in production
+- Free-first deployment guide for Vercel, Supabase/Neon, Resend, and Stripe
+
 ## Local development
 
 Requirements:
@@ -110,6 +127,19 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+Local mode is the default:
+
+```env
+NEXT_PUBLIC_DATA_MODE=local
+```
+
+Production deployment should use:
+
+```env
+NEXT_PUBLIC_DATA_MODE=server
+APP_ENV=production
+```
 
 ## Quality checks
 
@@ -145,9 +175,11 @@ src/
 │   ├── sign-in/page.tsx  # Sign-in route
 │   └── sign-up/page.tsx  # Sign-up route
 ├── lib/
-│   ├── demo-auth.ts      # Temporary browser-local auth helpers
-│   ├── demo-journal.ts   # Temporary browser-local journal data helpers
-│   └── demo-privacy.ts   # Browser-local encrypted export helpers
+│   ├── demo-auth.ts      # Browser-local fallback auth helpers for development
+│   ├── demo-journal.ts   # Browser-local fallback journal data helpers
+│   ├── demo-privacy.ts   # Browser-local encrypted export helpers
+│   ├── client/           # Server-mode client API helpers
+│   └── server/           # Database, auth, email, encryption, and Stripe helpers
 └── components/
     ├── account/          # Account management and privacy controls
     ├── auth/             # Sign-up, sign-in, and auth page layout
@@ -161,17 +193,12 @@ src/
 
 ## Privacy direction
 
-The landing page describes the intended privacy posture. The underlying account controls, data deletion workflow, authorization boundaries, and secure storage will be implemented and tested in later increments before the application is represented as production-ready.
+Happiness Journal supports two data modes:
 
-The Increment 2 auth flow is a local demo implementation. It is suitable for portfolio review and user-flow testing, but production deployment still needs server-side authentication, encrypted database storage, transactional email delivery, rate limiting, and account deletion controls.
+- `NEXT_PUBLIC_DATA_MODE=local` keeps the original browser-local flow available for development and portfolio walkthroughs without external services.
+- `NEXT_PUBLIC_DATA_MODE=server` enables the deployable production path with Postgres-backed accounts, httpOnly sessions, email verification codes, encrypted journal content, account-scoped retrieval, encrypted exports, account deletion, Stripe Checkout, and webhook validation.
 
-The Increment 3 journal data flow is also local-only. It demonstrates account-scoped retrieval, calendar updates, and mood summaries before replacing the storage layer with production APIs.
-
-The Increment 4 editor saves and updates local entries only. Production work will still need server-side validation, authorization checks, encrypted storage, and audit-safe deletion paths.
-
-The Increment 5 account center demonstrates privacy workflows locally. Production readiness still requires a real database, server-side sessions, strong password hashing, encrypted storage at rest, transactional account deletion, monitored export jobs, environment-managed secrets, and provider-backed email delivery.
-
-The Increment 6 contribution flow validates checkout requests but does not create live payment sessions yet. Production readiness still requires Stripe or another payment provider, server-side checkout session creation, webhook signature verification, deployment-managed secrets, and clear donation/refund policy language.
+Production deployments should use server mode with deployment-managed secrets, a working Postgres database, a verified Resend sender, Stripe keys/webhook setup, and `APP_ENV=production`. The final deployment checklist is documented in [docs/deployment-runbook.md](docs/deployment-runbook.md).
 
 ## License
 

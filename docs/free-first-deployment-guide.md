@@ -26,7 +26,7 @@ Steps:
 3. Choose “Add New Project”.
 4. Import the `Happiness-Journal` GitHub repository.
 5. Keep the framework as Next.js.
-6. Add environment variables from `.env.example` when Increment 7 is ready.
+6. Add environment variables from `.env.example` before the production deploy.
 7. Deploy from `main`.
 
 Cost: Vercel Hobby is free for portfolio projects. A custom domain is optional and usually costs money.
@@ -34,6 +34,8 @@ Cost: Vercel Hobby is free for portfolio projects. A custom domain is optional a
 Needed value:
 
 - `NEXT_PUBLIC_APP_URL` — the deployed Vercel URL or your custom domain.
+- `NEXT_PUBLIC_DATA_MODE=server`
+- `APP_ENV=production`
 
 ## 3. Database
 
@@ -60,6 +62,7 @@ Cost: both have free tiers suitable for this project.
 Needed value:
 
 - `DATABASE_URL`
+- `DATABASE_SSL=true`
 
 ## 4. App secrets
 
@@ -115,9 +118,8 @@ Steps:
 2. Create a Stripe account.
 3. Complete identity/business profile setup.
 4. Add your bank payout details inside Stripe only.
-5. Create a one-time donation product or price.
-6. Copy the Price ID.
-7. Create a webhook endpoint after the app is deployed.
+5. Copy your secret key from Developers → API keys.
+6. Create a webhook endpoint after the app is deployed.
 
 Important:
 
@@ -135,7 +137,6 @@ Needed values:
 
 - `PAYMENT_PROVIDER=stripe`
 - `STRIPE_SECRET_KEY`
-- `STRIPE_DONATION_PRICE_ID`
 - `STRIPE_WEBHOOK_SECRET`
 - `STRIPE_SUCCESS_URL`
 - `STRIPE_CANCEL_URL`

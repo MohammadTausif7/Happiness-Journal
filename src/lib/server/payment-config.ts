@@ -15,7 +15,6 @@ export function getMissingPaymentConfig() {
   const requiredKeys = [
     "PAYMENT_PROVIDER",
     "STRIPE_SECRET_KEY",
-    "STRIPE_DONATION_PRICE_ID",
     "STRIPE_SUCCESS_URL",
     "STRIPE_CANCEL_URL",
   ];

@@ -9,6 +9,11 @@ import {
   registerAccount,
   saveSession,
 } from "@/lib/demo-auth";
+import {
+  serverSignUpStart,
+  serverSignUpVerify,
+  useServerApiMode,
+} from "@/lib/client/server-api";
 
 type Step = "details" | "verify";
 
@@ -26,6 +31,7 @@ export function SignUpForm() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isServerMode = useServerApiMode();
 
   const passwordScore = useMemo(() => {
     const checks = [
@@ -63,14 +69,14 @@ export function SignUpForm() {
       return "Please confirm that you understand the privacy notice.";
     }
 
-    if (findAccountByEmail(email)) {
+    if (!isServerMode && findAccountByEmail(email)) {
       return "An account already exists for this email. Try signing in instead.";
     }
 
     return "";
   }
 
-  function handleDetailsSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleDetailsSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     resetMessages();
 
@@ -80,10 +86,30 @@ export function SignUpForm() {
       return;
     }
 
-    const code = createVerificationCode();
-    setVerificationCode(code);
-    setStep("verify");
-    setStatus("Verification code ready. Enter it below to continue.");
+    setIsSubmitting(true);
+
+    try {
+      if (isServerMode) {
+        const result = await serverSignUpStart({
+          name,
+          email,
+          password,
+          reminderEmails,
+        });
+        setVerificationCode(result.devCode ?? "");
+        setStatus(result.devCode ? "Verification code ready. Enter it below to continue." : "Verification code sent to your email.");
+      } else {
+        const code = createVerificationCode();
+        setVerificationCode(code);
+        setStatus("Verification code ready. Enter it below to continue.");
+      }
+
+      setStep("verify");
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Unable to send verification code.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   async function handleVerifySubmit(event: FormEvent<HTMLFormElement>) {
@@ -98,13 +124,21 @@ export function SignUpForm() {
     setIsSubmitting(true);
 
     try {
-      const account = await registerAccount({
-        name,
-        email,
-        password,
-        reminderEmails,
-      });
-      saveSession(account);
+      if (isServerMode) {
+        await serverSignUpVerify({
+          email,
+          code: codeInput,
+        });
+      } else {
+        const account = await registerAccount({
+          name,
+          email,
+          password,
+          reminderEmails,
+        });
+        saveSession(account);
+      }
+
       router.push("/journal");
     } catch (registrationError) {
       setError(registrationError instanceof Error ? registrationError.message : "Something went wrong.");
@@ -198,8 +232,8 @@ export function SignUpForm() {
           {error && <p className="form-message error">{error}</p>}
           {status && <p className="form-message success">{status}</p>}
 
-          <button className="button button-primary full-button" type="submit">
-            Send verification code
+          <button className="button button-primary full-button" disabled={isSubmitting} type="submit">
+            {isSubmitting ? "Sending..." : "Send verification code"}
             <span aria-hidden="true">→</span>
           </button>
         </form>
@@ -207,9 +241,9 @@ export function SignUpForm() {
         <form className="auth-form" onSubmit={handleVerifySubmit}>
           <div className="demo-email-card">
             <span>Verification code</span>
-            <strong>{verificationCode}</strong>
+            <strong>{verificationCode || "Check email"}</strong>
             <p>
-              Enter this six-digit code to verify <b>{email.trim().toLowerCase()}</b>.
+              Enter the six-digit code for <b>{email.trim().toLowerCase()}</b>.
             </p>
           </div>
 

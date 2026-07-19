@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 
 const phrases = [
-  "Remember more.",
-  "Track feelings.",
-  "Relive the moments.",
+  "remember more.",
+  "track your feelings.",
+  "relive moments.",
 ];
 
 const longestPhrase = phrases.reduce((longest, phrase) =>
