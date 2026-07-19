@@ -116,7 +116,7 @@ export function SignUpForm() {
     event.preventDefault();
     resetMessages();
 
-    if (codeInput.trim() !== verificationCode) {
+    if (!isServerMode && codeInput.trim() !== verificationCode) {
       setError("That code does not match. Check the verification card and try again.");
       return;
     }

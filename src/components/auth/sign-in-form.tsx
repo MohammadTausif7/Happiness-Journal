@@ -79,7 +79,7 @@ export function SignInForm() {
     }
   }
 
-  function handleVerifySubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleVerifySubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     resetMessages();
 
@@ -89,25 +89,29 @@ export function SignInForm() {
       return;
     }
 
-    if (codeInput.trim() !== verificationCode) {
+    if (!isServerMode && codeInput.trim() !== verificationCode) {
       setError("That two-factor code does not match.");
       return;
     }
 
-    if (isServerMode) {
-      serverSignInVerify({
-        email,
-        code: codeInput,
-      })
-        .then(() => router.push("/journal"))
-        .catch((signInError) => {
-          setError(signInError instanceof Error ? signInError.message : "Unable to verify code.");
-        });
-      return;
-    }
+    setIsSubmitting(true);
 
-    saveSession(pendingAccount);
-    router.push("/journal");
+    try {
+      if (isServerMode) {
+        await serverSignInVerify({
+          email,
+          code: codeInput,
+        });
+      } else {
+        saveSession(pendingAccount);
+      }
+
+      router.push("/journal");
+    } catch (signInError) {
+      setError(signInError instanceof Error ? signInError.message : "Unable to verify code.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -178,8 +182,8 @@ export function SignInForm() {
           {error && <p className="form-message error">{error}</p>}
           {status && <p className="form-message success">{status}</p>}
 
-          <button className="button button-dark full-button" type="submit">
-            Enter journal
+          <button className="button button-dark full-button" disabled={isSubmitting} type="submit">
+            {isSubmitting ? "Verifying..." : "Enter journal"}
             <span aria-hidden="true">✓</span>
           </button>
           <button className="text-link-button" onClick={() => setStep("credentials")} type="button">
