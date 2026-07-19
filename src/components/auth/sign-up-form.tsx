@@ -164,7 +164,7 @@ export function SignUpForm() {
             <input
               autoComplete="name"
               onChange={(event) => setName(event.target.value)}
-              placeholder="Mohammad Tausif"
+              placeholder="Your name"
               type="text"
               value={name}
             />
