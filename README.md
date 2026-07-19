@@ -1,6 +1,21 @@
 # Happiness Journal
 
-Happiness Journal is a privacy-minded daily journal that turns moods and memories into a visual calendar. The project is being built in seven deliberate increments, with each increment leaving the application in a reviewable state.
+Happiness Journal is a deployed, privacy-minded daily journal that turns moods and memories into a visual calendar. Users can create an account, verify sign-in by email, write encrypted journal moments, revisit older entries through a timeline, and make optional one-time contributions.
+
+Live website: [https://happiness-journal-web.vercel.app/](https://happiness-journal-web.vercel.app/)
+
+## Production stack
+
+- Framework: Next.js, React, TypeScript
+- Hosting: Vercel
+- Database: Supabase Postgres
+- Email verification: Resend
+- Contributions: Stripe Checkout and Stripe webhooks
+- Security: httpOnly sessions, server-side validation, scrypt password hashing, AES-GCM journal encryption, account-scoped APIs
+
+## Project history
+
+The project was built in seven deliberate increments, with each increment leaving the application in a reviewable state.
 
 ## Increment 1: product foundation
 
@@ -148,6 +163,20 @@ npm run lint
 npm run typecheck
 npm run build
 ```
+
+## Deployed configuration
+
+The live deployment uses:
+
+```env
+NEXT_PUBLIC_APP_URL=https://happiness-journal-web.vercel.app
+NEXT_PUBLIC_DATA_MODE=server
+APP_ENV=production
+DATABASE_SSL=true
+PAYMENT_PROVIDER=stripe
+```
+
+Secrets such as `DATABASE_URL`, `AUTH_SECRET`, `ENCRYPTION_KEY`, `EMAIL_PROVIDER_API_KEY`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET` are stored only in Vercel environment variables and are not committed to the repository.
 
 ## Project roadmap
 

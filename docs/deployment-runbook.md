@@ -1,6 +1,15 @@
 # Happiness Journal deployment runbook
 
-Follow this order for the final deployment.
+Production is live at [https://happiness-journal-web.vercel.app/](https://happiness-journal-web.vercel.app/).
+
+Current production providers:
+
+- Hosting: Vercel
+- Database: Supabase Postgres
+- Transactional email: Resend
+- Payments/contributions: Stripe Checkout and Stripe webhooks
+
+Use this runbook to reproduce the deployment, rotate secrets, or verify the live setup.
 
 ## 1. Push the final code to GitHub
 
@@ -32,17 +41,17 @@ DATABASE_SSL=true
 PAYMENT_PROVIDER=stripe
 ```
 
-After the first Vercel project exists, copy the Vercel production URL. Use it for:
+For the current live deployment, use:
 
 ```env
-NEXT_PUBLIC_APP_URL=https://your-vercel-url.vercel.app
-STRIPE_SUCCESS_URL=https://your-vercel-url.vercel.app/journal?contribution=success
-STRIPE_CANCEL_URL=https://your-vercel-url.vercel.app/contribute?contribution=cancelled
+NEXT_PUBLIC_APP_URL=https://happiness-journal-web.vercel.app
+STRIPE_SUCCESS_URL=https://happiness-journal-web.vercel.app/journal?contribution=success
+STRIPE_CANCEL_URL=https://happiness-journal-web.vercel.app/contribute?contribution=cancelled
 ```
 
 ## 3. Create the Postgres database
 
-Use Supabase or Neon.
+Current provider: Supabase Postgres.
 
 Needed Vercel variable:
 
@@ -98,7 +107,7 @@ STRIPE_SECRET_KEY=your_stripe_secret_key
 After the Vercel deployment URL exists, create a Stripe webhook endpoint:
 
 ```text
-https://your-vercel-url.vercel.app/api/contributions/webhook
+https://happiness-journal-web.vercel.app/api/contributions/webhook
 ```
 
 Listen for:
@@ -120,7 +129,7 @@ Trigger a production deployment from `main`.
 After deployment, open:
 
 ```text
-https://your-vercel-url.vercel.app/api/health
+https://happiness-journal-web.vercel.app/api/health
 ```
 
 Expected production response:

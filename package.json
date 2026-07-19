@@ -2,6 +2,7 @@
   "name": "happiness-journal",
   "version": "0.1.0",
   "private": true,
+  "description": "A deployed mood-aware journal built with Next.js, Supabase, Resend, Stripe, and Vercel.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

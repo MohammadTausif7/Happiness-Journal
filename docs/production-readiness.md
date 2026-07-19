@@ -1,6 +1,8 @@
 # Production readiness handoff
 
-The final increment adds deployable server-backed foundations while keeping local browser mode available for development. In production, set `NEXT_PUBLIC_DATA_MODE=server` so accounts, sessions, journal entries, exports, and contributions use the server APIs.
+Happiness Journal is deployed at [https://happiness-journal-web.vercel.app/](https://happiness-journal-web.vercel.app/).
+
+The production deployment uses Vercel, Supabase Postgres, Resend, and Stripe. In production, `NEXT_PUBLIC_DATA_MODE=server` makes accounts, sessions, journal entries, exports, and contributions use the server APIs.
 
 For step-by-step setup instructions, see `docs/free-first-deployment-guide.md` and `docs/deployment-runbook.md`.
 
@@ -13,32 +15,33 @@ For step-by-step setup instructions, see `docs/free-first-deployment-guide.md` a
 - `/api/health` reports which production environment variables are still missing.
 - `.env.example` lists the core app, email, database, encryption, and payment configuration expected before deployment.
 
-## What is needed from you before Increment 7
+## Production provider checklist
 
 1. Deployment target
-   - Recommended: Vercel for this Next.js project.
-   - Needed: permission to connect the GitHub repo and deploy from `main`.
+   - Current: Vercel deploying from `main`.
+   - Live URL: `https://happiness-journal-web.vercel.app/`.
 
 2. Database provider
-   - Recommended: Supabase Postgres or Neon Postgres.
-   - Needed: `DATABASE_URL` and usually `DATABASE_SSL=true`.
+   - Current: Supabase Postgres.
+   - Required Vercel vars: `DATABASE_URL` and `DATABASE_SSL=true`.
 
 3. Authentication/session secret
-   - Needed: a strong `AUTH_SECRET` generated for production only.
+   - Required Vercel var: strong production-only `AUTH_SECRET`.
 
 4. Encryption secret
-   - Needed: a strong `ENCRYPTION_KEY` for encrypted exports and sensitive journal storage.
+   - Required Vercel var: strong production-only `ENCRYPTION_KEY`.
 
 5. Transactional email provider
-   - Recommended: Resend, Postmark, or SendGrid.
-   - Needed: `EMAIL_FROM`, `EMAIL_PROVIDER_API_KEY`, and a verified sending domain or sender address.
+   - Current: Resend.
+   - Required Vercel vars: `EMAIL_FROM`, `EMAIL_PROVIDER_API_KEY`, and a verified sender/domain.
 
 6. Payment provider for contributions
-   - Recommended: Stripe Checkout for one-time donations.
-   - Needed: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_SUCCESS_URL`, and `STRIPE_CANCEL_URL`.
+   - Current: Stripe Checkout for one-time contributions.
+   - Required Vercel vars: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_SUCCESS_URL`, and `STRIPE_CANCEL_URL`.
 
 7. Domain and policy copy
-   - Optional but recommended: production domain, privacy policy text, support email, and refund/donation language.
+   - Current: Vercel production domain.
+   - Recommended next polish: custom domain, privacy policy text, support email, and contribution/refund language.
 
 ## Final increment implementation checklist
 

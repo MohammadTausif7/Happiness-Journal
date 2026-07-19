@@ -1,6 +1,15 @@
 # Free-first deployment setup guide
 
-This guide lists the accounts and values needed for the final production increment. Prefer free tiers while building the portfolio version.
+This guide lists the accounts and values used for the live Happiness Journal deployment. Prefer free tiers while building or maintaining the portfolio version.
+
+Live deployment: [https://happiness-journal-web.vercel.app/](https://happiness-journal-web.vercel.app/)
+
+Current provider choices:
+
+- Vercel for hosting
+- Supabase Postgres for the database
+- Resend for transactional email
+- Stripe for one-time contributions
 
 ## 1. GitHub repository
 
@@ -19,6 +28,8 @@ Cost: free.
 
 Recommended: Vercel.
 
+Current status: deployed on Vercel from the GitHub `main` branch.
+
 Steps:
 
 1. Go to `https://vercel.com`.
@@ -33,13 +44,15 @@ Cost: Vercel Hobby is free for portfolio projects. A custom domain is optional a
 
 Needed value:
 
-- `NEXT_PUBLIC_APP_URL` — the deployed Vercel URL or your custom domain.
+- `NEXT_PUBLIC_APP_URL=https://happiness-journal-web.vercel.app`
 - `NEXT_PUBLIC_DATA_MODE=server`
 - `APP_ENV=production`
 
 ## 3. Database
 
 Recommended free option: Supabase Postgres or Neon Postgres.
+
+Current status: Supabase Postgres is used for production.
 
 Supabase steps:
 
@@ -87,6 +100,8 @@ Cost: free.
 
 Recommended free-first option: Resend.
 
+Current status: Resend is used for verification-code emails.
+
 Steps:
 
 1. Create a new email address for the project, for example `happinessjournal.app@gmail.com`.
@@ -111,6 +126,8 @@ Needed values:
 ## 6. Payments / contributions
 
 Recommended: Stripe Checkout for one-time contributions.
+
+Current status: Stripe Checkout is used for one-time contributions, with webhook confirmation at `/api/contributions/webhook`.
 
 Steps:
 
