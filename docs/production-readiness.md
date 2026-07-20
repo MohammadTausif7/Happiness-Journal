@@ -2,7 +2,7 @@
 
 Happiness Journal is deployed at [https://happiness-journal-web.vercel.app/](https://happiness-journal-web.vercel.app/).
 
-The production deployment uses Vercel, Supabase Postgres, Resend, and Stripe. In production, `NEXT_PUBLIC_DATA_MODE=server` makes accounts, sessions, journal entries, exports, and contributions use the server APIs.
+The production deployment uses Vercel, Supabase Postgres, Gmail SMTP, and Stripe. In production, `NEXT_PUBLIC_DATA_MODE=server` makes accounts, sessions, journal entries, exports, and contributions use the server APIs.
 
 For step-by-step setup instructions, see `docs/free-first-deployment-guide.md` and `docs/deployment-runbook.md`.
 
@@ -32,8 +32,9 @@ For step-by-step setup instructions, see `docs/free-first-deployment-guide.md` a
    - Required Vercel var: strong production-only `ENCRYPTION_KEY`.
 
 5. Transactional email provider
-   - Current: Resend.
-   - Required Vercel vars: `EMAIL_FROM`, `EMAIL_PROVIDER_API_KEY`, and a verified sender/domain.
+   - Current: Gmail SMTP through Nodemailer.
+   - Required Vercel vars: `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, and `SMTP_PASS`.
+   - Gmail requires 2-Step Verification and an app password; do not use the normal mailbox password.
 
 6. Payment provider for contributions
    - Current: Stripe Checkout for one-time contributions.

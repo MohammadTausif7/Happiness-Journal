@@ -9,7 +9,7 @@ Live website: [https://happiness-journal-web.vercel.app/](https://happiness-jour
 - Framework: Next.js, React, TypeScript
 - Hosting: Vercel
 - Database: Supabase Postgres
-- Email verification: Resend
+- Email verification: Gmail SMTP through Nodemailer
 - Contributions: Stripe Checkout and Stripe webhooks
 - Security: httpOnly sessions, server-side validation, scrypt password hashing, AES-GCM journal encryption, account-scoped APIs
 
@@ -119,14 +119,14 @@ The seventh increment adds the server-backed production path:
 - Postgres schema initialization for accounts, sessions, verification codes, journal entries, and contributions
 - Server-side sign-up, sign-in, sign-out, and httpOnly cookie session workflows
 - Scrypt password hashing with per-account salts
-- Transactional email verification-code handoff through Resend
+- Transactional email verification-code handoff through Gmail SMTP
 - Account-scoped journal APIs for reading, creating, updating, and deleting entries
 - AES-GCM encryption for stored journal titles and notes using `ENCRYPTION_KEY`
 - Account profile, preferences, encrypted export, and deletion APIs
 - Stripe Checkout creation for one-time contributions
 - Stripe webhook signature verification for completed contribution tracking
 - Deployment health check that reports configuration readiness without exposing secret values in production
-- Free-first deployment guide for Vercel, Supabase/Neon, Resend, and Stripe
+- Free-first deployment guide for Vercel, Supabase/Neon, Gmail SMTP, and Stripe
 
 ## Local development
 
@@ -176,7 +176,7 @@ DATABASE_SSL=true
 PAYMENT_PROVIDER=stripe
 ```
 
-Secrets such as `DATABASE_URL`, `AUTH_SECRET`, `ENCRYPTION_KEY`, `EMAIL_PROVIDER_API_KEY`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET` are stored only in Vercel environment variables and are not committed to the repository.
+Secrets such as `DATABASE_URL`, `AUTH_SECRET`, `ENCRYPTION_KEY`, `SMTP_PASS`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET` are stored only in Vercel environment variables and are not committed to the repository.
 
 ## Project roadmap
 
@@ -227,7 +227,7 @@ Happiness Journal supports two data modes:
 - `NEXT_PUBLIC_DATA_MODE=local` keeps the original browser-local flow available for development and portfolio walkthroughs without external services.
 - `NEXT_PUBLIC_DATA_MODE=server` enables the deployable production path with Postgres-backed accounts, httpOnly sessions, email verification codes, encrypted journal content, account-scoped retrieval, encrypted exports, account deletion, Stripe Checkout, and webhook validation.
 
-Production deployments should use server mode with deployment-managed secrets, a working Postgres database, a verified Resend sender, Stripe keys/webhook setup, and `APP_ENV=production`. The final deployment checklist is documented in [docs/deployment-runbook.md](docs/deployment-runbook.md).
+Production deployments should use server mode with deployment-managed secrets, a working Postgres database, Gmail SMTP credentials, Stripe keys/webhook setup, and `APP_ENV=production`. The final deployment checklist is documented in [docs/deployment-runbook.md](docs/deployment-runbook.md).
 
 ## License
 

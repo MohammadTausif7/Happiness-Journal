@@ -2,7 +2,7 @@
   "name": "happiness-journal",
   "version": "0.1.0",
   "private": true,
-  "description": "A deployed mood-aware journal built with Next.js, Supabase, Resend, Stripe, and Vercel.",
+  "description": "A deployed mood-aware journal built with Next.js, Supabase, Gmail SMTP, Stripe, and Vercel.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,12 +12,14 @@
   },
   "dependencies": {
     "next": "16.2.9",
+    "nodemailer": "^9.0.3",
     "pg": "^8.22.0",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.20.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

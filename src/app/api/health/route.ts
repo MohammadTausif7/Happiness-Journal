@@ -9,7 +9,11 @@ const productionKeys = [
   "AUTH_SECRET",
   "ENCRYPTION_KEY",
   "EMAIL_FROM",
-  "EMAIL_PROVIDER_API_KEY",
+  "SMTP_HOST",
+  "SMTP_PORT",
+  "SMTP_SECURE",
+  "SMTP_USER",
+  "SMTP_PASS",
 ];
 
 export async function GET() {

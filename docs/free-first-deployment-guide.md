@@ -8,7 +8,7 @@ Current provider choices:
 
 - Vercel for hosting
 - Supabase Postgres for the database
-- Resend for transactional email
+- Gmail SMTP for transactional email
 - Stripe for one-time contributions
 
 ## 1. GitHub repository
@@ -98,30 +98,35 @@ Cost: free.
 
 ## 5. Transactional email
 
-Recommended free-first option: Resend.
+Recommended free-first option: a dedicated Gmail account with an app password.
 
-Current status: Resend is used for verification-code emails.
+Current status: Gmail SMTP is used for verification-code emails through Nodemailer.
 
 Steps:
 
 1. Create a new email address for the project, for example `happinessjournal.app@gmail.com`.
-2. Go to `https://resend.com`.
-3. Sign up.
-4. Create an API key.
-5. For production-quality sending, verify a domain in Resend.
+2. Open that Google Account’s security settings.
+3. Enable 2-Step Verification.
+4. Open App passwords.
+5. Create an app password for Mail and copy it.
+6. Add the SMTP values in Vercel.
 
 Important:
 
-- A Gmail address is fine for admin/support contact.
-- For app verification emails, a provider like Resend is better than sending directly from Gmail.
-- Without a custom domain, email providers may restrict who you can send to during testing.
+- Use a dedicated project Gmail account, not your personal Gmail account.
+- Use the generated app password, not the normal mailbox password.
+- Gmail SMTP is free-first and works without buying a domain, but it has daily sending limits and is not ideal for high-volume production.
 
-Cost: Resend has a free tier. A custom domain is optional but usually costs money.
+Cost: free.
 
 Needed values:
 
 - `EMAIL_FROM`
-- `EMAIL_PROVIDER_API_KEY`
+- `SMTP_HOST=smtp.gmail.com`
+- `SMTP_PORT=465`
+- `SMTP_SECURE=true`
+- `SMTP_USER`
+- `SMTP_PASS`
 
 ## 6. Payments / contributions
 

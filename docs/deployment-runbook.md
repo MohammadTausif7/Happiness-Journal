@@ -6,7 +6,7 @@ Current production providers:
 
 - Hosting: Vercel
 - Database: Supabase Postgres
-- Transactional email: Resend
+- Transactional email: Gmail SMTP through Nodemailer
 - Payments/contributions: Stripe Checkout and Stripe webhooks
 
 Use this runbook to reproduce the deployment, rotate secrets, or verify the live setup.
@@ -79,19 +79,25 @@ ENCRYPTION_KEY=second_generated_value
 
 Do not commit these values.
 
-## 5. Configure Resend
+## 5. Configure Gmail SMTP
 
-1. Open `https://resend.com`.
-2. Create an API key.
-3. Add or verify your sender/domain.
-4. Add these Vercel variables:
+1. Create a project Gmail address, for example `happinessjournal.app@gmail.com`.
+2. Open the Google Account settings for that mailbox.
+3. Enable 2-Step Verification.
+4. Open App passwords and create a new password for Mail.
+5. Copy the 16-character app password. This is the value for `SMTP_PASS`.
+6. Add these Vercel variables:
 
 ```env
-EMAIL_FROM=Happiness Journal <your_verified_sender>
-EMAIL_PROVIDER_API_KEY=your_resend_api_key
+EMAIL_FROM=Happiness Journal <happinessjournal.app@gmail.com>
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=happinessjournal.app@gmail.com
+SMTP_PASS=your_gmail_app_password
 ```
 
-If you are still in Resend testing mode, only verified recipient addresses may receive email.
+Do not use your normal Gmail password. Gmail SMTP requires an app password when 2-Step Verification is enabled.
 
 ## 6. Configure Stripe
 
